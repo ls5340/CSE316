@@ -1,7 +1,12 @@
 import React from "react";
+import ItemCard from "./ItemCard";
+import ListCard from "./ListCard";
 
 export default class Workspace extends React.Component {
     render() {
+        const { currentList } = this.props;
+        if (currentList !== null) {
+        }
         return (
             <div id="top5-workspace">
                 <div id="workspace-edit">
@@ -13,11 +18,16 @@ export default class Workspace extends React.Component {
                         <div className="item-number">5.</div>
                     </div>
                     <div id="edit-items">
-                        <div id='item-1' class="top5-item"></div>
-                        <div id='item-2' class="top5-item"></div>
-                        <div id='item-3' class="top5-item"></div>
-                        <div id='item-4' class="top5-item"></div>
-                        <div id='item-5' class="top5-item"></div>
+                        { 
+                            currentList !== null ? (
+                                currentList.items.map((item, i) => (
+                                    <ItemCard 
+                                        key={i}
+                                        text={item}
+                                    />
+                                ))
+                            ) : ("")
+                        }
                     </div>
                 </div>
             </div>
