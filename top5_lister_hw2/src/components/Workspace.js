@@ -4,9 +4,10 @@ import ListCard from "./ListCard";
 
 export default class Workspace extends React.Component {
     render() {
-        const { currentList } = this.props;
-        if (currentList !== null) {
-        }
+        const { currentList, 
+                renameItemCallback,
+                dragItemCallback } = this.props;
+        console.log(currentList);
         return (
             <div id="top5-workspace">
                 <div id="workspace-edit">
@@ -20,13 +21,16 @@ export default class Workspace extends React.Component {
                     <div id="edit-items">
                         { 
                             currentList !== null ? (
-                                currentList.items.map((item, i) => (
+                                currentList.items.map((item, index) => (
                                     <ItemCard 
-                                        key={i}
+                                        key={index}
+                                        index={index}
                                         text={item}
+                                        renameItemCallback={renameItemCallback}
+                                        dragItemCallback={dragItemCallback}
                                     />
                                 ))
-                            ) : ("")
+                            ) : (console.log("NOTHING"))
                         }
                     </div>
                 </div>

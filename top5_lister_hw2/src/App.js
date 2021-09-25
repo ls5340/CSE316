@@ -24,6 +24,7 @@ class App extends React.Component {
         // SETUP THE INITIAL STATE
         this.state = {
             currentList : null,
+            deleting: null,
             sessionData : loadedSessionData
         }
     }
@@ -69,6 +70,7 @@ class App extends React.Component {
             // PUTTING THIS NEW LIST IN PERMANENT STORAGE
             // IS AN AFTER EFFECT
             this.db.mutationCreateList(newList);
+            this.db.mutationUpdateSessionData(this.state.sessionData);
         });
     }
     renameList = (key, newName) => {
@@ -104,6 +106,31 @@ class App extends React.Component {
             this.db.mutationUpdateSessionData(this.state.sessionData);
         });
     }
+    // THIS FUNCTION RENAMES AN ITEM
+    renameItem = (index, text) => {
+        let newCurrentList = this.state.currentList;
+        newCurrentList.items[index] = text;
+        this.setState(prevState => ({
+            currentList: newCurrentList,
+            sessionData: prevState.sessionData
+        }), () => {
+            this.db.mutationUpdateList(this.state.currentList);
+        });
+
+    }
+    // THIS FUNCTION DRAG AND DROPS AN ITEM
+    dragItem = (oldIndex, newIndex) => {
+        let newCurrentList = this.state.currentList;
+        let temp = newCurrentList.items[oldIndex];
+        newCurrentList.items[oldIndex] = newCurrentList.items[newIndex];
+        newCurrentList.items[newIndex] = temp;
+        this.setState(prevState => ({
+            currentList: newCurrentList,
+            sessionData: prevState.sessionData
+        }), () => {
+            this.db.mutationUpdateList(this.state.currentList);
+        });
+    }
     // THIS FUNCTION BEGINS THE PROCESS OF LOADING A LIST FOR EDITING
     loadList = (key) => {
         let newCurrentList = this.db.queryGetList(key);
@@ -118,18 +145,19 @@ class App extends React.Component {
     closeCurrentList = () => {
         this.setState(prevState => ({
             currentList: null,
-            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
-            sessionData: this.state.sessionData
+            //listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            sessionData: prevState.sessionData
         }), () => {
             // ANY AFTER EFFECTS?
         });
     }
-    deleteList = () => {
+    deleteList = (keyNamePair) => {
         // SOMEHOW YOU ARE GOING TO HAVE TO FIGURE OUT
         // WHICH LIST IT IS THAT THE USER WANTS TO
         // DELETE AND MAKE THAT CONNECTION SO THAT THE
         // NAME PROPERLY DISPLAYS INSIDE THE MODAL
         this.showDeleteListModal();
+        this.deleting = keyNamePair;
     }
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
@@ -142,6 +170,26 @@ class App extends React.Component {
         let modal = document.getElementById("delete-modal");
         modal.classList.remove("is-visible");
     }
+    confirmDeleteListModal = () => {
+        let index = this.state.sessionData.keyNamePairs.indexOf(this.deleting);
+        this.state.sessionData.keyNamePairs.splice(index, 1);
+        if (this.state.currentList !== null && this.deleting.key == this.state.currentList.key) {
+            this.closeCurrentList();
+            this.db.mutationUpdateSessionData(this.state.sessionData);
+            this.hideDeleteListModal();
+        }
+        else {
+            this.setState(prevState => ({
+                currentList: prevState.currentList,
+                sessionData: prevState.sessionData
+            }), () => {
+                // ANY AFTER EFFECTS?
+                this.hideDeleteListModal();
+                this.db.mutationUpdateSessionData(this.state.sessionData);
+            });
+        }
+    }
+
     render() {
         return (
             <div id="app-root">
@@ -158,11 +206,15 @@ class App extends React.Component {
                     renameListCallback={this.renameList}
                 />
                 <Workspace
-                    currentList={this.state.currentList} />
+                    currentList={this.state.currentList}
+                    renameItemCallback={this.renameItem}
+                    dragItemCallback={this.dragItem} 
+                />
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteModal
                     hideDeleteListModalCallback={this.hideDeleteListModal}
+                    confirmDeleteListModalCallback={this.confirmDeleteListModal}
                 />
             </div>
         );
