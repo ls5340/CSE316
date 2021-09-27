@@ -11,6 +11,12 @@ import Sidebar from './components/Sidebar.js'
 import Workspace from './components/Workspace.js';
 import Statusbar from './components/Statusbar.js'
 
+// IMPORT TRANSACTIONS
+import ChangeItem_Transaction from './transactions/ChangeItem_Transaction';
+import MoveItem_Transaction from './transactions/MoveItem_Transaction';
+
+import jsTPS from './common/jsTPS';
+
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -20,6 +26,9 @@ class App extends React.Component {
 
         // GET THE SESSION DATA FROM OUR DATA MANAGER
         let loadedSessionData = this.db.queryGetSessionData();
+
+        // jsTPS thingy
+        this.tps = new jsTPS();
 
         // SETUP THE INITIAL STATE
         this.state = {
@@ -138,6 +147,7 @@ class App extends React.Component {
             currentList: newCurrentList,
             sessionData: prevState.sessionData
         }), () => {
+            this.tps.clearAllTransactions();
             // ANY AFTER EFFECTS?
         });
     }
@@ -156,8 +166,41 @@ class App extends React.Component {
         // WHICH LIST IT IS THAT THE USER WANTS TO
         // DELETE AND MAKE THAT CONNECTION SO THAT THE
         // NAME PROPERLY DISPLAYS INSIDE THE MODAL
-        this.showDeleteListModal();
-        this.deleting = keyNamePair;
+        this.setState(prevState => ({
+            currentList: prevState.currentList,
+            sessionData: prevState.sessionData,
+            deleting: keyNamePair
+        }), () => {
+            this.showDeleteListModal();
+        });
+    }
+    // THIS FUNCTION ADDS AN ITEM CHANGE TRANSACTION TO THE JSTPS STACK
+    addChangeItemTransaction = (id, newText) => {
+        // GET THE CURRENT TEXT
+        let oldText = this.state.currentList.items[id];
+        let transaction = new ChangeItem_Transaction(this, id, oldText, newText);
+        this.tps.addTransaction(transaction);
+        //this.view.updateToolbarButtons(this);
+    }
+    // THIS FUNCTION ADDS AN ITEM MOVE TRANSACTION TO THE JSTPS STACK   
+    addMoveItemTransaction = (fromId, toId) => {
+        let transaction = new MoveItem_Transaction(this, fromId, toId);
+        this.tps.addTransaction(transaction);
+        //this.view.updateToolbarButtons(this);
+    }
+    // THIS FUNCTION PERFORMS TRANSACTION UNDO
+    undo = () => {
+        if (this.tps.hasTransactionToUndo()) {
+            this.tps.undoTransaction();
+            //this.view.updateToolbarButtons(this);
+        }
+    }
+    // THIS FUNCTION PERFORMS TRANSACTION REDO
+    redo = () => {
+        if (this.tps.hasTransactionToRedo()) {
+            this.tps.doTransaction();
+            //this.view.updateToolbarButtons(this);
+        }
     }
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
@@ -171,9 +214,9 @@ class App extends React.Component {
         modal.classList.remove("is-visible");
     }
     confirmDeleteListModal = () => {
-        let index = this.state.sessionData.keyNamePairs.indexOf(this.deleting);
+        let index = this.state.sessionData.keyNamePairs.indexOf(this.state.deleting);
         this.state.sessionData.keyNamePairs.splice(index, 1);
-        if (this.state.currentList !== null && this.deleting.key == this.state.currentList.key) {
+        if (this.state.currentList !== null && this.state.deleting.key == this.state.currentList.key) {
             this.closeCurrentList();
             this.db.mutationUpdateSessionData(this.state.sessionData);
             this.hideDeleteListModal();
@@ -195,7 +238,9 @@ class App extends React.Component {
             <div id="app-root">
                 <Banner 
                     title='Top 5 Lister'
-                    closeCallback={this.closeCurrentList} />
+                    closeCallback={this.closeCurrentList}
+                    undoCallback={this.undo}
+                    redoCallback={this.redo} />
                 <Sidebar
                     heading='Your Lists'
                     currentList={this.state.currentList}
@@ -207,12 +252,13 @@ class App extends React.Component {
                 />
                 <Workspace
                     currentList={this.state.currentList}
-                    renameItemCallback={this.renameItem}
-                    dragItemCallback={this.dragItem} 
+                    renameItemCallback={this.addChangeItemTransaction}
+                    dragItemCallback={this.addMoveItemTransaction} 
                 />
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteModal
+                    listKeyPair={this.state.deleting}
                     hideDeleteListModalCallback={this.hideDeleteListModal}
                     confirmDeleteListModalCallback={this.confirmDeleteListModal}
                 />
