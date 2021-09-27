@@ -2,7 +2,12 @@ import React from "react";
 
 export default class EditToolbar extends React.Component {
     render() {
-        const { closeCallback, undoCallback, redoCallback } = this.props;
+        const { closeCallback, 
+                undoCallback, 
+                redoCallback, 
+                undoDisabled, 
+                redoDisabled, 
+                closeDisabled } = this.props;
         return (
             <div id="edit-toolbar">
                 <div 

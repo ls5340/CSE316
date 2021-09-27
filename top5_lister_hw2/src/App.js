@@ -34,7 +34,10 @@ class App extends React.Component {
         this.state = {
             currentList : null,
             deleting: null,
-            sessionData : loadedSessionData
+            sessionData : loadedSessionData,
+            undoDisabled: true,
+            redoDisabled: true,
+            closeDisabled: true
         }
     }
     sortKeyNamePairsByName = (keyNamePairs) => {
@@ -70,6 +73,7 @@ class App extends React.Component {
         // SHOULD BE DONE VIA ITS CALLBACK
         this.setState(prevState => ({
             currentList: newList,
+            closeDisabled: false,
             sessionData: {
                 nextKey: prevState.sessionData.nextKey + 1,
                 counter: prevState.sessionData.counter + 1,
@@ -119,9 +123,13 @@ class App extends React.Component {
     renameItem = (index, text) => {
         let newCurrentList = this.state.currentList;
         newCurrentList.items[index] = text;
+        let undo = this.tps.hasTransactionToUndo();
+        let redo = this.tps.hasTransactionToRedo();
         this.setState(prevState => ({
             currentList: newCurrentList,
-            sessionData: prevState.sessionData
+            sessionData: prevState.sessionData,
+            undoDisabled: !undo,
+            redoDisabled: !redo
         }), () => {
             this.db.mutationUpdateList(this.state.currentList);
         });
@@ -133,9 +141,13 @@ class App extends React.Component {
         let temp = newCurrentList.items[oldIndex];
         newCurrentList.items[oldIndex] = newCurrentList.items[newIndex];
         newCurrentList.items[newIndex] = temp;
+        let undo = this.tps.hasTransactionToUndo();
+        let redo = this.tps.hasTransactionToRedo();
         this.setState(prevState => ({
             currentList: newCurrentList,
-            sessionData: prevState.sessionData
+            sessionData: prevState.sessionData,
+            undoDisabled: !undo,
+            redoDisabled: !redo
         }), () => {
             this.db.mutationUpdateList(this.state.currentList);
         });
@@ -145,7 +157,8 @@ class App extends React.Component {
         let newCurrentList = this.db.queryGetList(key);
         this.setState(prevState => ({
             currentList: newCurrentList,
-            sessionData: prevState.sessionData
+            sessionData: prevState.sessionData,
+            closeDisabled: false
         }), () => {
             this.tps.clearAllTransactions();
             // ANY AFTER EFFECTS?
@@ -155,6 +168,7 @@ class App extends React.Component {
     closeCurrentList = () => {
         this.setState(prevState => ({
             currentList: null,
+            closeDisabled: true,
             //listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
             sessionData: prevState.sessionData
         }), () => {
@@ -180,26 +194,26 @@ class App extends React.Component {
         let oldText = this.state.currentList.items[id];
         let transaction = new ChangeItem_Transaction(this, id, oldText, newText);
         this.tps.addTransaction(transaction);
-        //this.view.updateToolbarButtons(this);
+        //this.updateToolbarButtons(this);
     }
     // THIS FUNCTION ADDS AN ITEM MOVE TRANSACTION TO THE JSTPS STACK   
     addMoveItemTransaction = (fromId, toId) => {
         let transaction = new MoveItem_Transaction(this, fromId, toId);
         this.tps.addTransaction(transaction);
-        //this.view.updateToolbarButtons(this);
+        //this.updateToolbarButtons(this);
     }
     // THIS FUNCTION PERFORMS TRANSACTION UNDO
     undo = () => {
         if (this.tps.hasTransactionToUndo()) {
             this.tps.undoTransaction();
-            //this.view.updateToolbarButtons(this);
+            //this.updateToolbarButtons();
         }
     }
     // THIS FUNCTION PERFORMS TRANSACTION REDO
     redo = () => {
         if (this.tps.hasTransactionToRedo()) {
             this.tps.doTransaction();
-            //this.view.updateToolbarButtons(this);
+            //this.updateToolbarButtons();
         }
     }
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER

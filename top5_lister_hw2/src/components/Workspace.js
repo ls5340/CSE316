@@ -1,6 +1,5 @@
 import React from "react";
 import ItemCard from "./ItemCard";
-import ListCard from "./ListCard";
 
 export default class Workspace extends React.Component {
     render() {

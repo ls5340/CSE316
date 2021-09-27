@@ -40,6 +40,7 @@ export default class ItemCard extends React.Component {
         event.dataTransfer.setData("text", this.state.index)
     }
     handleOnDrop = (event) => {
+        event.preventDefault();
         let oldIndex = this.state.index;
         let newIndex = parseInt(event.dataTransfer.getData("text"));
         this.props.dragItemCallback(oldIndex, newIndex);
