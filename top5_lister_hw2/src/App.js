@@ -150,11 +150,12 @@ class App extends React.Component {
     // THIS FUNCTION BEGINS THE PROCESS OF LOADING A LIST FOR EDITING
     loadList = (key) => {
         let newCurrentList = this.db.queryGetList(key);
+        if (this.state.currentList !== null && this.state.currentList.key != newCurrentList.key)
+            this.tps.clearAllTransactions();
         this.setState(prevState => ({
             currentList: newCurrentList,
             sessionData: prevState.sessionData,
         }), () => {
-            this.tps.clearAllTransactions();
             this.updateToolbarButtons();
             // ANY AFTER EFFECTS?
         });
