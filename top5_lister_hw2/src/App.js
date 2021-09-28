@@ -39,6 +39,15 @@ class App extends React.Component {
     }
     componentDidMount = () => {
         this.updateToolbarButtons();
+        document.onkeydown = (event) => {
+            if (event.ctrlKey && event.key === 'z') {
+                this.undo();
+            }
+            else if (event.ctrlKey && event.key === 'y')
+            {
+                this.redo();
+            }
+        }
     }
     sortKeyNamePairsByName = (keyNamePairs) => {
         keyNamePairs.sort((keyPair1, keyPair2) => {
