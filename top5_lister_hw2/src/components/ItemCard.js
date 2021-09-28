@@ -7,7 +7,8 @@ export default class ItemCard extends React.Component {
         this.state = {
             index: this.props.index,
             text: this.props.text,
-            editActive: false
+            editActive: false,
+            draggedOver: false
         }
     }
 
@@ -43,10 +44,18 @@ export default class ItemCard extends React.Component {
         event.preventDefault();
         let oldIndex = this.state.index;
         let newIndex = parseInt(event.dataTransfer.getData("text"));
-        this.props.dragItemCallback(oldIndex, newIndex);
+        this.setState(prevState => ({
+            draggedOver: false
+        }), () => {
+            this.props.dragItemCallback(oldIndex, newIndex);
+        });
     }
     handleOnDragOver = (event) => {
         event.preventDefault();
+        this.setState({ draggedOver: true });
+    }
+    handleOnDragLeave = (event) => {
+        this.setState({ draggedOver: false });
     }
 
     render() {
@@ -64,17 +73,35 @@ export default class ItemCard extends React.Component {
             );
         }
         else {
-            return (
-                <div 
-                    className="top5-item"
-                    onClick={this.handleClick}
-                    draggable="true"
-                    onDragStart={this.handleOnDragStart}
-                    onDragOver={this.handleOnDragOver}
-                    onDrop={this.handleOnDrop}>
-                    {text}
-                </div>
-            );
+            if (this.state.draggedOver) {
+                return (
+                    <div 
+                        className="top5-item"
+                        className="top5-item-dragged-to"
+                        onClick={this.handleClick}
+                        draggable="true"
+                        onDragStart={this.handleOnDragStart}
+                        onDragOver={this.handleOnDragOver}
+                        onDrop={this.handleOnDrop}
+                        onDragLeave={this.handleOnDragLeave}>
+                        {text}
+                    </div>
+                );
+            }
+            else {
+                return (
+                    <div 
+                        className="top5-item"
+                        onClick={this.handleClick}
+                        draggable="true"
+                        onDragStart={this.handleOnDragStart}
+                        onDragOver={this.handleOnDragOver}
+                        onDrop={this.handleOnDrop}
+                        onDragLeave={this.handleOnDragLeave}>
+                        {text}
+                    </div>
+                );
+            }
         }
     }
 }

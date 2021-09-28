@@ -35,10 +35,10 @@ class App extends React.Component {
             currentList : null,
             deleting: null,
             sessionData : loadedSessionData,
-            undoDisabled: true,
-            redoDisabled: true,
-            closeDisabled: true
         }
+    }
+    componentDidMount = () => {
+        this.updateToolbarButtons();
     }
     sortKeyNamePairsByName = (keyNamePairs) => {
         keyNamePairs.sort((keyPair1, keyPair2) => {
@@ -84,6 +84,7 @@ class App extends React.Component {
             // IS AN AFTER EFFECT
             this.db.mutationCreateList(newList);
             this.db.mutationUpdateSessionData(this.state.sessionData);
+            this.updateToolbarButtons();
         });
     }
     renameList = (key, newName) => {
@@ -123,15 +124,12 @@ class App extends React.Component {
     renameItem = (index, text) => {
         let newCurrentList = this.state.currentList;
         newCurrentList.items[index] = text;
-        let undo = this.tps.hasTransactionToUndo();
-        let redo = this.tps.hasTransactionToRedo();
         this.setState(prevState => ({
             currentList: newCurrentList,
             sessionData: prevState.sessionData,
-            undoDisabled: !undo,
-            redoDisabled: !redo
         }), () => {
             this.db.mutationUpdateList(this.state.currentList);
+            this.updateToolbarButtons();
         });
 
     }
@@ -141,15 +139,12 @@ class App extends React.Component {
         let temp = newCurrentList.items[oldIndex];
         newCurrentList.items[oldIndex] = newCurrentList.items[newIndex];
         newCurrentList.items[newIndex] = temp;
-        let undo = this.tps.hasTransactionToUndo();
-        let redo = this.tps.hasTransactionToRedo();
         this.setState(prevState => ({
             currentList: newCurrentList,
             sessionData: prevState.sessionData,
-            undoDisabled: !undo,
-            redoDisabled: !redo
         }), () => {
             this.db.mutationUpdateList(this.state.currentList);
+            this.updateToolbarButtons();
         });
     }
     // THIS FUNCTION BEGINS THE PROCESS OF LOADING A LIST FOR EDITING
@@ -158,9 +153,9 @@ class App extends React.Component {
         this.setState(prevState => ({
             currentList: newCurrentList,
             sessionData: prevState.sessionData,
-            closeDisabled: false
         }), () => {
             this.tps.clearAllTransactions();
+            this.updateToolbarButtons();
             // ANY AFTER EFFECTS?
         });
     }
@@ -168,10 +163,11 @@ class App extends React.Component {
     closeCurrentList = () => {
         this.setState(prevState => ({
             currentList: null,
-            closeDisabled: true,
             //listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
             sessionData: prevState.sessionData
         }), () => {
+            this.tps.clearAllTransactions();
+            this.updateToolbarButtons()
             // ANY AFTER EFFECTS?
         });
     }
@@ -194,27 +190,59 @@ class App extends React.Component {
         let oldText = this.state.currentList.items[id];
         let transaction = new ChangeItem_Transaction(this, id, oldText, newText);
         this.tps.addTransaction(transaction);
-        //this.updateToolbarButtons(this);
+        this.updateToolbarButtons();
     }
     // THIS FUNCTION ADDS AN ITEM MOVE TRANSACTION TO THE JSTPS STACK   
     addMoveItemTransaction = (fromId, toId) => {
         let transaction = new MoveItem_Transaction(this, fromId, toId);
         this.tps.addTransaction(transaction);
-        //this.updateToolbarButtons(this);
+        this.updateToolbarButtons();
     }
     // THIS FUNCTION PERFORMS TRANSACTION UNDO
     undo = () => {
         if (this.tps.hasTransactionToUndo()) {
             this.tps.undoTransaction();
-            //this.updateToolbarButtons();
+            this.updateToolbarButtons();
         }
     }
     // THIS FUNCTION PERFORMS TRANSACTION REDO
     redo = () => {
         if (this.tps.hasTransactionToRedo()) {
             this.tps.doTransaction();
-            //this.updateToolbarButtons();
+            this.updateToolbarButtons();
         }
+    }
+    updateToolbarButtons = () => {
+        let tps = this.tps;
+        if (!tps.hasTransactionToUndo()) {
+            this.disableButton("undo-button");
+        }
+        else {
+            this.enableButton("undo-button");
+        }   
+        
+        if (!tps.hasTransactionToRedo()) {
+            this.disableButton("redo-button");
+        }
+        else {
+            this.enableButton("redo-button");
+        }  
+
+        if (this.state.currentList === null) {
+            this.disableButton("close-button");
+        }
+        else {
+            this.enableButton("close-button");
+        }
+    }
+    disableButton(id) {
+        let button = document.getElementById(id);
+        button.disabled = true;
+    }
+
+    enableButton(id) {
+        let button = document.getElementById(id);
+        button.disabled = false;
     }
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
