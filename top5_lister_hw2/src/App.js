@@ -144,10 +144,26 @@ class App extends React.Component {
     }
     // THIS FUNCTION DRAG AND DROPS AN ITEM
     dragItem = (oldIndex, newIndex) => {
+        // let newCurrentList = this.state.currentList;
+        // let temp = newCurrentList.items[oldIndex];
+        // newCurrentList.items[oldIndex] = newCurrentList.items[newIndex];
+        // newCurrentList.items[newIndex] = temp;
+
         let newCurrentList = this.state.currentList;
         let temp = newCurrentList.items[oldIndex];
-        newCurrentList.items[oldIndex] = newCurrentList.items[newIndex];
+        if (oldIndex > newIndex) {
+            for (let i = oldIndex; i > newIndex; i--) {
+                newCurrentList.items[i] = newCurrentList.items[i - 1];
+            }
+        }
+        else if (oldIndex < newIndex) {
+            for (let i = oldIndex; i < newIndex; i++) {
+                newCurrentList.items[i] = newCurrentList.items[i + 1]
+            }
+        }
         newCurrentList.items[newIndex] = temp;
+
+
         this.setState(prevState => ({
             currentList: newCurrentList,
             sessionData: prevState.sessionData,
@@ -240,9 +256,11 @@ class App extends React.Component {
 
         if (this.state.currentList === null) {
             this.disableButton("close-button");
+            this.enableButton("add-list-button");
         }
         else {
             this.enableButton("close-button");
+            this.disableButton("add-list-button");
         }
     }
     disableButton(id) {
