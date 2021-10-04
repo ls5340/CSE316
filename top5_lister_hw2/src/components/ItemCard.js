@@ -69,6 +69,7 @@ export default class ItemCard extends React.Component {
                     onBlur={this.handleBlur}
                     onChange={this.handleUpdate}
                     defaultValue={text}
+                    autoFocus
                 />
             );
         }

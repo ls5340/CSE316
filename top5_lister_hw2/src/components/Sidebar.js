@@ -18,6 +18,7 @@ export default class Sidebar extends React.Component {
                         id="add-list-button" 
                         onClick={createNewListCallback}
                         className="top5-button" 
+                        className="add-list-button"
                         value="+" />
                     {heading}
                 </div>
