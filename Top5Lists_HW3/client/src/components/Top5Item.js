@@ -9,6 +9,31 @@ import { GlobalStoreContext } from '../store'
 function Top5Item(props) {
     const { store } = useContext(GlobalStoreContext);
     const [draggedTo, setDraggedTo] = useState(0);
+    const [editActive, setEditActive] = useState(false);
+    const [value, setValue] = useState("?")
+
+    function handleClick(event) {
+        handleToggleEdit(event);
+    }
+
+    function handleToggleEdit(event) {
+        setEditActive(!editActive);
+    }
+
+    function handleUpdate(event) {
+        setValue(event.target.value);
+    }
+
+    function handleKeyPress(event) {
+        if (event.code === "Enter") {
+            handleBlur();
+        }
+    }
+    function handleBlur() {
+        let { index } = props;
+        store.addChangeItemTransaction(index, value);
+        handleToggleEdit();
+    }
 
     function handleDragStart(event) {
         event.dataTransfer.setData("item", event.target.id);
@@ -46,7 +71,8 @@ function Top5Item(props) {
     if (draggedTo) {
         itemClass = "top5-item-dragged-to";
     }
-    return (
+
+    let itemElement = 
         <div
             id={'item-' + (index + 1)}
             className={itemClass}
@@ -55,16 +81,35 @@ function Top5Item(props) {
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            draggable="true"
+            draggable="true" 
         >
             <input
                 type="button"
                 id={"edit-item-" + index + 1}
                 className="list-card-button"
                 value={"\u270E"}
+                onClick={handleClick}
+                onChange={handleUpdate}
+                onKeyPress={handleKeyPress}
             />
             {props.text}
-        </div>)
+        </div>
+    
+    if (editActive) {
+        itemElement = 
+            <input
+                type="text"
+                id={"item-textbox-" + index + 1}
+                className="top5-item"
+                onChange={handleUpdate}
+                onKeyPress={handleKeyPress}
+                onBlur={handleBlur}
+                defaultValue={value}
+                autoFocus
+            />
+
+    }
+    return (itemElement)
 }
 
 export default Top5Item;

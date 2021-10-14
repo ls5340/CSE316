@@ -21,6 +21,7 @@ function ListCard(props) {
             if (_id.indexOf('list-card-text-') >= 0)
                 _id = ("" + _id).substring("list-card-text-".length);
 
+            console.log(_id);
             // CHANGE THE CURRENT LIST
             store.setCurrentList(_id);
         }
@@ -51,6 +52,19 @@ function ListCard(props) {
         setText(event.target.value );
     }
 
+    function handleDelete(event) {
+        event.stopPropagation();
+        if (!event.target.disabled) {
+            let _id = event.target.id;
+            if (_id.indexOf('delete-list-') >= 0)
+                _id = ("" + _id).substring("delete-list-".length);
+
+            console.log(_id);
+            // CHANGE THE CURRENT LIST
+            store.markDelete(_id);
+        }
+    }
+
     let selectClass = "unselected-list-card";
     if (selected) {
         selectClass = "selected-list-card";
@@ -77,6 +91,7 @@ function ListCard(props) {
                 id={"delete-list-" + idNamePair._id}
                 className="list-card-button"
                 value={"\u2715"}
+                onClick={handleDelete}
             />
             <input
                 disabled={cardStatus}

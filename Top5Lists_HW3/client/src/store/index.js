@@ -2,6 +2,7 @@ import { createContext, useState } from 'react'
 import jsTPS from '../common/jsTPS'
 import api from '../api'
 import MoveItem_Transaction from '../transactions/MoveItem_Transaction'
+import ChangeItem_Transaction from '../transactions/ChangeItem_Transaction'
 export const GlobalStoreContext = createContext({});
 /*
     This is our global data store. Note that it uses the Flux design pattern,
@@ -13,6 +14,7 @@ export const GlobalStoreContext = createContext({});
 // THESE ARE ALL THE TYPES OF UPDATES TO OUR GLOBAL
 // DATA STORE STATE THAT CAN BE PROCESSED
 export const GlobalStoreActionType = {
+    ADD_NEW_LIST: "ADD_NEW_LIST",
     CHANGE_LIST_NAME: "CHANGE_LIST_NAME",
     CLOSE_CURRENT_LIST: "CLOSE_CURRENT_LIST",
     LOAD_ID_NAME_PAIRS: "LOAD_ID_NAME_PAIRS",
@@ -42,6 +44,16 @@ export const useGlobalStore = () => {
         const { type, payload } = action;
         switch (type) {
             // LIST UPDATE OF ITS NAME
+            case GlobalStoreActionType.ADD_NEW_LIST: {
+                return setStore({
+                    idNamePairs: payload.idNamePairs,
+                    currentList: payload.top5List,
+                    newListCounter: store.newListCounter + 1,
+                    isListNameEditActive: false,
+                    isItemEditActive: false,
+                    listMarkedForDeletion: null
+                })
+            }
             case GlobalStoreActionType.CHANGE_LIST_NAME: {
                 return setStore({
                     idNamePairs: payload.idNamePairs,
@@ -96,6 +108,17 @@ export const useGlobalStore = () => {
                     listMarkedForDeletion: null
                 });
             }
+            // DELETE LIST
+            case GlobalStoreActionType.DELETE_LIST: {
+                return setStore({
+                    idNamePairs: payload,
+                    currentList: null,
+                    newListCounter: store.newListCounter - 1,
+                    isListNameEditActive: false,
+                    isItemEditActive: false,
+                    listMarkedForDeletion: null
+                });
+            }
             default:
                 return store;
         }
@@ -103,6 +126,38 @@ export const useGlobalStore = () => {
     // THESE ARE THE FUNCTIONS THAT WILL UPDATE OUR STORE AND
     // DRIVE THE STATE OF THE APPLICATION. WE'LL CALL THESE IN 
     // RESPONSE TO EVENTS INSIDE OUR COMPONENTS.
+
+    // THIS FUNCTION CREATES A NEW LIST
+    store.addNewList = function () {
+        async function asyncAddNewList() {
+            const newItem = {
+                "name": "Undefined",
+                "items": ["?", "?", "?", "?", "?"]
+            }
+            let response = await api.createTop5List(newItem);
+            if (response.data.success) {
+                let top5List = response.data.top5List;
+                console.log("New list created: " + top5List);
+                async function getListPairs(top5List) {
+                    response = await api.getTop5ListPairs();
+                    if (response.data.success) {
+                        let pairsArray = response.data.idNamePairs;
+                        storeReducer({
+                            type: GlobalStoreActionType.ADD_NEW_LIST,
+                            payload: {
+                                idNamePairs: pairsArray,
+                                top5List: top5List
+                            }
+                        });
+                        store.history.push("/top5list/" + top5List._id);
+                        tps.clearAllTransactions();
+                    }
+                }
+                getListPairs(top5List);
+            }
+        }
+        asyncAddNewList();
+    }
 
     // THIS FUNCTION PROCESSES CHANGING A LIST NAME
     store.changeListName = function (id, newName) {
@@ -172,6 +227,7 @@ export const useGlobalStore = () => {
             let response = await api.getTop5ListById(id);
             if (response.data.success) {
                 let top5List = response.data.top5List;
+                console.log(top5List);
 
                 response = await api.updateTop5ListById(top5List._id, top5List);
                 if (response.data.success) {
@@ -180,6 +236,7 @@ export const useGlobalStore = () => {
                         payload: top5List
                     });
                     store.history.push("/top5list/" + top5List._id);
+                    tps.clearAllTransactions();
                 }
             }
         }
@@ -210,6 +267,15 @@ export const useGlobalStore = () => {
         // NOW MAKE IT OFFICIAL
         store.updateCurrentList();
     }
+    store.addChangeItemTransaction = function (index, newText) {
+        console.log('%s %s %s', index, this.currentList.items, newText);
+        let transaction = new ChangeItem_Transaction(store, index, this.currentList.items[index], newText);
+        tps.addTransaction(transaction);
+    }
+    store.renameItem = function (index, newText) {
+        store.currentList.items[index] = newText;
+        store.updateCurrentList();
+    }
     store.updateCurrentList = function() {
         async function asyncUpdateCurrentList() {
             const response = await api.updateTop5ListById(store.currentList._id, store.currentList);
@@ -221,6 +287,42 @@ export const useGlobalStore = () => {
             }
         }
         asyncUpdateCurrentList();
+    }
+    store.markDelete = function(id) {
+        store.listMarkedForDeletion = id;
+        store.showDeleteListModel();
+    }
+    store.deleteMarkedList = function () {
+        async function asyncDeleteMarkedList() {
+            console.log(store.listMarkedForDeletion);
+            const response = await api.deleteTop5ListById(store.listMarkedForDeletion);
+            if (response.data.success) {
+                let top5List = response.data.top5List;
+                console.log("List deleted: " + top5List);
+                async function getListPairs() {
+                    response = await api.getTop5ListPairs();
+                    if (response.data.success) {
+                        let pairsArray = response.data.idNamePairs;
+                        storeReducer({
+                            type: GlobalStoreActionType.DELETE_LIST,
+                            payload: pairsArray
+                        });
+                        store.hideDeleteListModal();
+                    }
+                }
+                getListPairs();
+            }
+        }
+        asyncDeleteMarkedList();
+    }
+    store.showDeleteListModel = function() {
+        let modal = document.getElementById("delete-modal");
+        modal.classList.add("is-visible");
+    }
+    store.hideDeleteListModal = function() {
+        store.listMarkedForDeletion = null;
+        let modal = document.getElementById("delete-modal");
+        modal.classList.remove("is-visible");
     }
     store.undo = function () {
         tps.undoTransaction();
