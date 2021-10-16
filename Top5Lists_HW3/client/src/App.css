@@ -78,6 +78,7 @@ body {
 .top5-button-disabled {
   opacity: 0.25; 
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 #top5-list-selector {
@@ -172,6 +173,10 @@ body {
 .list-card-button {
   float:right;
   font-size:18pt;
+}
+
+.list-card-button:disabled {
+  pointer-events: none;
 }
 
 #workspace-home, #workspace-edit {

@@ -11,9 +11,9 @@ import { GlobalStoreContext } from '../store'
 function ListCard(props) {
     const { store } = useContext(GlobalStoreContext);
     const [ editActive, setEditActive ] = useState(false);
-    const [ text, setText ] = useState("");
     store.history = useHistory();
     const { idNamePair, selected } = props;
+    const [ text, setText ] = useState(idNamePair.name);
 
     function handleLoadList(event) {
         if (!event.target.disabled) {
@@ -24,6 +24,7 @@ function ListCard(props) {
             console.log(_id);
             // CHANGE THE CURRENT LIST
             store.setCurrentList(_id);
+            store.updateToolBarButtons();
         }
     }
 
@@ -112,6 +113,7 @@ function ListCard(props) {
                 onKeyPress={handleKeyPress}
                 onChange={handleUpdateText}
                 defaultValue={idNamePair.name}
+                autoFocus
             />;
     }
     return (

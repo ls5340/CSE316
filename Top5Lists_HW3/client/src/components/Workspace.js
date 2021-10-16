@@ -8,10 +8,13 @@ import { GlobalStoreContext } from '../store'
     
     @author McKilla Gorilla
 */
-function Workspace() {
+function Workspace(props) {
     const { store } = useContext(GlobalStoreContext);
     store.history = useHistory();
 
+    let _id = "" + props.location.pathname;
+    if (_id.indexOf('/top5list/') >= 0)
+         _id = ("" + _id).substring("/top5list/".length);
     let editItems = "";
     if (store.currentList) {
         editItems = 
@@ -27,6 +30,9 @@ function Workspace() {
                     ))
                 }
             </div>;
+    }
+    else {
+        store.setCurrentList(_id);
     }
     return (
         <div id="top5-workspace">

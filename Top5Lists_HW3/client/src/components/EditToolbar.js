@@ -10,43 +10,45 @@ import { useHistory } from 'react-router-dom'
 function EditToolbar() {
     const { store } = useContext(GlobalStoreContext);
     const history = useHistory();
-
-    let enabledButtonClass = "top5-button";
+    
     function handleUndo() {
         store.undo();
+        store.updateToolBarButtons(1);
     }
     function handleRedo() {
         store.redo();
+        store.updateToolBarButtons(1);
     }
     function handleClose() {
         history.push("/");
         store.closeCurrentList();
     }
     let editStatus = false;
-    if (store.isListNameEditActive) {
+    if (store.isItemEditActive) {
         editStatus = true;
     }
+
     return (
         <div id="edit-toolbar">
             <div
                 disabled={editStatus}
                 id='undo-button'
                 onClick={handleUndo}
-                className={enabledButtonClass}>
+                className="top5-button-disabled">
                 &#x21B6;
             </div>
             <div
                 disabled={editStatus}
                 id='redo-button'
                 onClick={handleRedo}
-                className={enabledButtonClass}>
+                className="top5-button-disabled">
                 &#x21B7;
             </div>
             <div
                 disabled={editStatus}
                 id='close-button'
                 onClick={handleClose}
-                className={enabledButtonClass}>
+                className="top5-button-disabled">
                 &#x24E7;
             </div>
         </div>
