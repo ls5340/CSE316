@@ -132,6 +132,16 @@ export const useGlobalStore = () => {
                     listMarkedForDeletion: null
                 });
             }
+            case GlobalStoreActionType.SET_DELETE_LIST: {
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: null,
+                    newListCounter: store.newListCounter - 1,
+                    isListNameEditActive: false,
+                    isItemEditActive: false,
+                    listMarkedForDeletion: payload
+                });
+            }
             // DELETE LIST
             case GlobalStoreActionType.DELETE_LIST: {
                 return setStore({
@@ -318,13 +328,22 @@ export const useGlobalStore = () => {
         asyncUpdateCurrentList();
     }
     store.markDelete = function(id) {
-        store.listMarkedForDeletion = id;
-        store.showDeleteListModel();
+        async function asyncMarkDelete() {
+            let response = await api.getTop5ListById(id);
+            if (response.data.success) {
+                let top5List = response.data.top5List;
+                storeReducer({
+                    type: GlobalStoreActionType.SET_DELETE_LIST,
+                    payload: top5List
+                });
+                store.showDeleteListModel();
+            }
+        }
+        asyncMarkDelete();
     }
     store.deleteMarkedList = function () {
         async function asyncDeleteMarkedList() {
-            console.log(store.listMarkedForDeletion);
-            const response = await api.deleteTop5ListById(store.listMarkedForDeletion);
+            const response = await api.deleteTop5ListById(store.listMarkedForDeletion._id);
             if (response.data.success) {
                 console.log("List deleted: ");
                 console.log(response.data.data);
