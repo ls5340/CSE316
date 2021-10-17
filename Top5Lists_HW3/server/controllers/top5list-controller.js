@@ -136,29 +136,62 @@ getTop5Lists = async (req, res) => {
     }).catch(err => console.log(err))
 }
 getTop5ListPairs = async (req, res) => {
-    await Top5List.find({}, (err, top5Lists) => {
-        if (err) {
-            return res.status(400).json({ success: false, error: err})
-        }
-        if (!top5Lists.length) {
+    // await Top5List.find({}, (err, top5Lists) => {
+    //     console.log(err);
+    //     console.log(top5Lists);
+    //     if (err) {
+    //         console.log("HELLO1");
+    //         return res.status(400).json({ success: false, error: err})
+    //     }
+    //     if (!top5Lists.length) {
+    //         console.log("HELLO2");
+    //         return res
+    //             .status(404)
+    //             .json({ success: false, error: 'Top 5 Lists not found'})
+    //     }
+    //     else {
+    //         console.log("HELLO3");
+    //         // PUT ALL THE LISTS INTO ID, NAME PAIRS
+    //         let pairs = [];
+    //         for (let key in top5Lists) {
+    //             let list = top5Lists[key];
+    //             let pair = {
+    //                 _id : list._id,
+    //                 name : list.name
+    //             };
+    //             pairs.push(pair);
+    //         }
+    //         return res.status(200).json({ success: true, idNamePairs: pairs })
+    //     }
+    // }).catch(err => console.log(err))
+    try {
+        let response = await Top5List.find({});
+        console.log(response);
+
+        if (response.length === 0) {
+            console.log("BAD 404");
             return res
-                .status(404)
-                .json({ success: false, error: 'Top 5 Lists not found'})
+                    .status(404)
+                    .json({ success: false, error: `Top 5 Lists not found` })
         }
-        else {
-            // PUT ALL THE LISTS INTO ID, NAME PAIRS
-            let pairs = [];
-            for (let key in top5Lists) {
-                let list = top5Lists[key];
-                let pair = {
-                    _id : list._id,
-                    name : list.name
-                };
-                pairs.push(pair);
-            }
-            return res.status(200).json({ success: true, idNamePairs: pairs })
+
+        if (response.err) {
+            return res.status(400).json({ success: false, error: err })
         }
-    }).catch(err => console.log(err))
+
+        let pairs = [];
+        for (let key in response) {
+            let list = response[key];
+            let pair = {
+                _id : list._id,
+                name : list.name
+            };
+            pairs.push(pair);
+        }
+        return res.status(200).json({ success: true, idNamePairs: pairs })
+    } catch (e) {
+        console.log(e)
+    }
 }
 
 module.exports = {

@@ -22,6 +22,7 @@ export const GlobalStoreActionType = {
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
     SET_ITEM_EDIT_ACTIVE: "SET_ITEM_EDIT_ACTIVE",
     SET_ITEM_EDIT_INACTIVE: "SET_ITEM_EDIT_INACTIVE",
+    SET_DELETE_LIST: "SET_DELETE_LIST",
     DELETE_LIST: "DELETE_LIST"
 }
 
@@ -147,7 +148,7 @@ export const useGlobalStore = () => {
                 return setStore({
                     idNamePairs: payload,
                     currentList: null,
-                    newListCounter: store.newListCounter - 1,
+                    newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
                     listMarkedForDeletion: null
@@ -241,17 +242,37 @@ export const useGlobalStore = () => {
     // THIS FUNCTION LOADS ALL THE ID, NAME PAIRS SO WE CAN LIST ALL THE LISTS
     store.loadIdNamePairs = function () {
         async function asyncLoadIdNamePairs() {
-            const response = await api.getTop5ListPairs();
-            if (response.data.success) {
-                let pairsArray = response.data.idNamePairs;
+            try {
+                const response = await api.getTop5ListPairs();
+                if (response.data.success) {
+                    let pairsArray = response.data.idNamePairs;
+                    storeReducer({
+                        type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
+                        payload: pairsArray
+                    });
+                }
+                else {
+                    console.log("API FAILED TO GET THE LIST PAIRS");
+                }
+            }
+            catch (e) {
                 storeReducer({
                     type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
-                    payload: pairsArray
+                    payload: []
                 });
-            }
-            else {
-                console.log("API FAILED TO GET THE LIST PAIRS");
-            }
+                console.log("STATUS 404 NOT FOUND --- EMPTY LIST");
+            }   
+            // const response = await api.getTop5ListPairs();
+            // if (response.data.success) {
+            //     let pairsArray = response.data.idNamePairs;
+            //     storeReducer({
+            //         type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
+            //         payload: pairsArray
+            //     });
+            // }
+            // else {
+            //     console.log("API FAILED TO GET THE LIST PAIRS");
+            // }
         }
         asyncLoadIdNamePairs();
     }
@@ -343,22 +364,36 @@ export const useGlobalStore = () => {
     }
     store.deleteMarkedList = function () {
         async function asyncDeleteMarkedList() {
-            const response = await api.deleteTop5ListById(store.listMarkedForDeletion._id);
-            if (response.data.success) {
-                console.log("List deleted: ");
-                console.log(response.data.data);
-                async function getListPairs() {
-                    let response1 = await api.getTop5ListPairs();
-                    if (response1.data.success) {
-                        let pairsArray = response1.data.idNamePairs;
-                        storeReducer({
-                            type: GlobalStoreActionType.DELETE_LIST,
-                            payload: pairsArray
-                        });
-                        store.hideDeleteListModal();
+            try {
+                const response = await api.deleteTop5ListById(store.listMarkedForDeletion._id);
+                if (response.data.success) {
+                    console.log("List deleted: ");
+                    console.log(response.data.data);
+                    async function getListPairs() {
+                        try {
+                            let response1 = await api.getTop5ListPairs();
+                            if (response1.data.success) {
+                                let pairsArray = response1.data.idNamePairs;
+                                storeReducer({
+                                    type: GlobalStoreActionType.DELETE_LIST,
+                                    payload: pairsArray
+                                });
+                                store.hideDeleteListModal();
+                            }
+                        }
+                        catch (e) {
+                            storeReducer({
+                                type: GlobalStoreActionType.DELETE_LIST,
+                                payload: []
+                            });
+                            store.hideDeleteListModal();
+                            console.log(e.response);
+                        }
                     }
+                    getListPairs();
                 }
-                getListPairs();
+            } catch (e) {
+                console.log(e);
             }
         }
         asyncDeleteMarkedList();
