@@ -137,7 +137,7 @@ export const useGlobalStore = () => {
                 return setStore({
                     idNamePairs: store.idNamePairs,
                     currentList: null,
-                    newListCounter: store.newListCounter - 1,
+                    newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
                     listMarkedForDeletion: payload
@@ -387,7 +387,6 @@ export const useGlobalStore = () => {
                                 payload: []
                             });
                             store.hideDeleteListModal();
-                            console.log(e.response);
                         }
                     }
                     getListPairs();

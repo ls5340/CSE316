@@ -104,7 +104,6 @@ function Top5Item(props) {
                 className="list-card-button"
                 value={"\u270E"}
                 onClick={handleClick}
-                onChange={handleUpdate}
                 onKeyPress={handleKeyPress}
                 disabled={otherEditActive}
             />
