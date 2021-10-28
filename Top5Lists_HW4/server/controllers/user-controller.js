@@ -3,6 +3,7 @@ const User = require('../models/user-model')
 const bcrypt = require('bcryptjs')
 
 getLoggedIn = async (req, res) => {
+    console.log("herro?");
     auth.verify(req, res, async function () {
         const loggedInUser = await User.findOne({ _id: req.userId });
         return res.status(200).json({
@@ -20,11 +21,13 @@ registerUser = async (req, res) => {
     try {
         const { firstName, lastName, email, password, passwordVerify } = req.body;
         if (!firstName || !lastName || !email || !password || !passwordVerify) {
+            console.log("1");
             return res
                 .status(400)
                 .json({ errorMessage: "Please enter all required fields." });
         }
         if (password.length < 8) {
+            console.log("2");
             return res
                 .status(400)
                 .json({
@@ -32,6 +35,7 @@ registerUser = async (req, res) => {
                 });
         }
         if (password !== passwordVerify) {
+            console.log("3");
             return res
                 .status(400)
                 .json({
@@ -40,6 +44,7 @@ registerUser = async (req, res) => {
         }
         const existingUser = await User.findOne({ email: email });
         if (existingUser) {
+            console.log("4");
             return res
                 .status(400)
                 .json({
@@ -56,7 +61,9 @@ registerUser = async (req, res) => {
             firstName, lastName, email, passwordHash
         });
         const savedUser = await newUser.save();
-
+        console.log("5");
+        console.log(savedUser);
+        console.log(User);
         // LOGIN THE USER
         const token = auth.signToken(savedUser);
 
@@ -78,7 +85,100 @@ registerUser = async (req, res) => {
     }
 }
 
+loginUser = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            console.log("1");
+            return res
+                .status(400)
+                .json({ errorMessage: "Please enter all required fields." });
+        }
+        const existingUser = await User.findOne({ email: email });
+        if (!existingUser) {
+            console.log("4");
+            return res
+                .status(400)
+                .json({
+                    success: false,
+                    errorMessage: "An account with this email address does not exist!"
+                });
+        }
+
+        /*
+        const saltRounds = 10;
+        const salt = await bcrypt.genSalt(saltRounds);
+        const passwordHash = await bcrypt.hash(password, salt);
+        */
+
+        let error = 0;
+        bcrypt.compare(password, existingUser.password, (err, res1) => {
+            if (err) {
+                error = 1;
+            }
+            if (!res1) {
+                error = 0;
+            }
+        })
+
+        if (error === 1) {
+            console.log("compare error");
+            return res
+                .status(400)
+                .json({
+                    success: false,
+                    errorMessage: "bcrypt compare error"
+                });
+        }
+        else if (error === 2) {
+            console.log("wrong password");
+            return res
+                .status(400)
+                .json({
+                    success: false,
+                    errorMessage: "wrong password"
+                });
+        }
+
+        console.log("correct password");
+
+        const token = auth.signToken(existingUser);
+
+        await res.cookie("token", token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none"
+        }).status(200).json({
+            success: true,
+            user: {
+                firstName: existingUser.firstName,
+                lastName: existingUser.lastName,
+                email: existingUser.email
+            }
+        }).send();
+    } catch (err) {
+        console.error(err);
+        res.status(500).send();
+    }
+}
+
+logoutUser = async (req, res) => {
+    console.log("attempt logout");
+    try {
+        await res.cookie("token", "", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none"
+        }).status(200).send();
+    } catch (err) {
+        console.error(err);
+        res.status(500).send();
+    }
+}
+
 module.exports = {
     getLoggedIn,
-    registerUser
+    registerUser,
+    loginUser,
+    logoutUser,
 }

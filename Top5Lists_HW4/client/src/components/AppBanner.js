@@ -48,6 +48,7 @@ export default function AppBanner() {
             open={isMenuOpen}
             onClose={handleMenuClose}
         >
+            <MenuItem onClick={handleMenuClose}><Link to='/login/'>Login</Link></MenuItem>
             <MenuItem onClick={handleMenuClose}><Link to='/register/'>Create New Account</Link></MenuItem>
         </Menu>
     );
@@ -80,7 +81,10 @@ export default function AppBanner() {
     }
     
     function getAccountMenu(loggedIn) {
-        return <AccountCircle />;
+        if (!loggedIn)
+            return <AccountCircle />;
+        else 
+            return <div>{auth.user.firstName[0].toUpperCase() + auth.user.lastName[0].toUpperCase()}</div>
     }
 
     return (
