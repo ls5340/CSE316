@@ -11,12 +11,16 @@ export const AuthActionType = {
     REGISTER_USER: "REGISTER_USER",
     LOGIN_USER: "LOGIN_USER",
     LOGOUT_USER: "LOGOUT_USER",
+    ALERTING_REG: "ALERTING_REG",
+    ALERTING_LOG: "ALERTING_LOG"
 }
 
 function AuthContextProvider(props) {
     const [auth, setAuth] = useState({
         user: null,
-        loggedIn: false
+        loggedIn: false,
+        alertingReg: false,
+        alertingLog: false,
     });
     const history = useHistory();
 
@@ -51,6 +55,20 @@ function AuthContextProvider(props) {
                     loggedIn: false,
                 });
             }
+            case AuthActionType.ALERTING_REG: {
+                return setAuth({
+                    user: null,
+                    loggedIn: false,
+                    alertingReg: payload.alerting,
+                })
+            }
+            case AuthActionType.ALERTING_LOG: {
+                return setAuth({
+                    user: null,
+                    loggedIn: false,
+                    alertingLog: payload.alerting,
+                })
+            }
             default:
                 return auth;
         }
@@ -70,34 +88,49 @@ function AuthContextProvider(props) {
     }
 
     auth.registerUser = async function(userData, store) {
-        const response = await api.registerUser(userData);      
-        if (response.status === 200) {
-            authReducer({
-                type: AuthActionType.REGISTER_USER,
-                payload: {
-                    user: response.data.user
-                }
-            })
-            history.push("/");
-            store.loadIdNamePairs();
+        try {
+            const response = await api.registerUser(userData);      
+            if (response.status === 200) {
+                authReducer({
+                    type: AuthActionType.REGISTER_USER,
+                    payload: {
+                        user: response.data.user
+                    }
+                })
+                history.push("/");
+                store.loadIdNamePairs();
+            }
+            else if (response.status === 400) {
+                console.log("REGISTER BAD");
+                this.alert(1);
+            }
+        }
+        catch (e) {
+            this.alert(1);
         }
     }
 
     auth.loginUser = async function(userData, store) {
-        const response = await api.loginUser(userData);
-        if (response.status === 200) {
-            authReducer({
-                type: AuthActionType.LOGIN_USER,
-                payload: {
-                    user: response.data.user
-                }
-            });
-            console.log("sucessssy??");
-            history.push("/");
-            store.loadIdNamePairs();
-        }
-        else {
-            console.log("login fail");
+        try {
+            const response = await api.loginUser(userData);
+            if (response.status === 200) {
+                authReducer({
+                    type: AuthActionType.LOGIN_USER,
+                    payload: {
+                        user: response.data.user
+                    }
+                });
+                console.log("sucessssy??");
+                history.push("/");
+                store.loadIdNamePairs();
+            }
+            else if (response.status === 400) {
+                console.log("LOGIN BAD");
+                this.alert(2);
+            }
+        } catch (e) {
+            console.log("LOGIN BAD");
+            this.alert(2);
         }
     }
 
@@ -115,6 +148,28 @@ function AuthContextProvider(props) {
         }
         else {
             console.log("logout fail");
+        }
+    }
+
+    auth.alert = async function (type) {
+        if (type === 1) {
+            let bool = auth.alertingReg;
+            authReducer({
+                type: AuthActionType.ALERTING_REG,
+                payload: {
+                    alerting: !bool
+                }
+            });
+        }
+        else if (type === 2) {
+            console.log("TYPE 2");
+            let bool = auth.alertingLog;
+            authReducer({
+                type: AuthActionType.ALERTING_LOG,
+                payload: {
+                    alerting: !bool
+                }
+            });
         }
     }
 

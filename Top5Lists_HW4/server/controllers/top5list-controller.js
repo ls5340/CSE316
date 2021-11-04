@@ -1,4 +1,5 @@
 const Top5List = require('../models/top5list-model');
+const User = require('../models/user-model');
 
 createTop5List = (req, res) => {
     const body = req.body;
@@ -126,7 +127,8 @@ getTop5ListPairs = async (req, res) => {
                 let list = top5Lists[key];
                 let pair = {
                     _id: list._id,
-                    name: list.name
+                    name: list.name,
+                    email: list.ownerEmail
                 };
                 pairs.push(pair);
             }

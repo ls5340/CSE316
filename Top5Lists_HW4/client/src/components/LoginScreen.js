@@ -12,6 +12,7 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import AlertModal from './AlertModal';
 import { useContext } from 'react';
 import AuthContext from '../auth'
 import { GlobalStoreContext } from '../store'
@@ -50,6 +51,7 @@ export default function LoginScreen() {
         <ThemeProvider theme={theme}>
         <Grid container component="main" sx={{ height: '100vh' }}>
             <CssBaseline />
+            <AlertModal />
             <Grid
             item
             xs={false}

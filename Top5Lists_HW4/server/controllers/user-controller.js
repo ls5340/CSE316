@@ -110,27 +110,28 @@ loginUser = async (req, res) => {
         const salt = await bcrypt.genSalt(saltRounds);
         const passwordHash = await bcrypt.hash(password, salt);
         */
+        console.log(existingUser);
+        console.log(password);
+        const match = await bcrypt.compare(password, existingUser.passwordHash);
+        if (match) {
+            console.log("correct password");
 
-        let error = 0;
-        bcrypt.compare(password, existingUser.password, (err, res1) => {
-            if (err) {
-                error = 1;
-            }
-            if (!res1) {
-                error = 0;
-            }
-        })
+            const token = auth.signToken(existingUser);
 
-        if (error === 1) {
-            console.log("compare error");
-            return res
-                .status(400)
-                .json({
-                    success: false,
-                    errorMessage: "bcrypt compare error"
-                });
+            await res.cookie("token", token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: "none"
+            }).status(200).json({
+                success: true,
+                user: {
+                    firstName: existingUser.firstName,
+                    lastName: existingUser.lastName,
+                    email: existingUser.email
+                }
+            }).send();
         }
-        else if (error === 2) {
+        else {
             console.log("wrong password");
             return res
                 .status(400)
@@ -139,23 +140,59 @@ loginUser = async (req, res) => {
                     errorMessage: "wrong password"
                 });
         }
+        // let error = -1;
+        // bcrypt.compare(password, existingUser.passwordHash).then(async function(err, res1) {
+        //     if (err) {
+        //         console.log(err);
+        //         error = 0;
+        //         console.log("WHAT1");
+        //     }
+        //     if (res1) {
+        //         error = 1;      // password correct
+        //         console.log("WHAT2");
+        //     }
+        //     else {
+        //         error = 2;      // password wrong
+        //         console.log("WHAT3");
+        //     }
 
-        console.log("correct password");
+        //     console.log(error);
+        //     if (error === 0) {
+        //         console.log("compare error");
+        //         return res
+        //             .status(400)
+        //             .json({
+        //                 success: false,
+        //                 errorMessage: "bcrypt compare error"
+        //             });
+        //     }
+        //     else if (error === 2) {
+        //         console.log("wrong password");
+        //         return res
+        //             .status(400)
+        //             .json({
+        //                 success: false,
+        //                 errorMessage: "wrong password"
+        //             });
+        //     }
 
-        const token = auth.signToken(existingUser);
+        //     console.log("correct password");
 
-        await res.cookie("token", token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none"
-        }).status(200).json({
-            success: true,
-            user: {
-                firstName: existingUser.firstName,
-                lastName: existingUser.lastName,
-                email: existingUser.email
-            }
-        }).send();
+        //     const token = auth.signToken(existingUser);
+
+        //     await res.cookie("token", token, {
+        //         httpOnly: true,
+        //         secure: true,
+        //         sameSite: "none"
+        //     }).status(200).json({
+        //         success: true,
+        //         user: {
+        //             firstName: existingUser.firstName,
+        //             lastName: existingUser.lastName,
+        //             email: existingUser.email
+        //         }
+        //     }).send();
+        // });
     } catch (err) {
         console.error(err);
         res.status(500).send();

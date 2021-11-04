@@ -175,10 +175,16 @@ function GlobalStoreContextProvider(props) {
                         response = await api.getTop5ListPairs();
                         if (response.data.success) {
                             let pairsArray = response.data.idNamePairs;
+                            console.log(pairsArray);
+                            let newArray = [];
+                            for (let key in pairsArray) {
+                                if (pairsArray[key].email === auth.user.email)
+                                    newArray.push(pairsArray[key]);
+                            }
                             storeReducer({
                                 type: GlobalStoreActionType.CHANGE_LIST_NAME,
                                 payload: {
-                                    idNamePairs: pairsArray,
+                                    idNamePairs: newArray,
                                     top5List: top5List
                                 }
                             });
@@ -233,9 +239,15 @@ function GlobalStoreContextProvider(props) {
         const response = await api.getTop5ListPairs();
         if (response.data.success) {
             let pairsArray = response.data.idNamePairs;
+            console.log(pairsArray);
+            let newArray = [];
+            for (let key in pairsArray) {
+                if (pairsArray[key].email === auth.user.email)
+                    newArray.push(pairsArray[key]);
+            }
             storeReducer({
                 type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
-                payload: pairsArray
+                payload: newArray
             });
         }
         else {

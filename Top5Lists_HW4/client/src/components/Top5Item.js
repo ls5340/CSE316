@@ -48,6 +48,8 @@ function Top5Item(props) {
         store.addMoveItemTransaction(sourceId, targetId);
     }
 
+    //handleEdit()
+
     let { index } = props;
 
     let itemClass = "top5-item";
@@ -83,7 +85,9 @@ function Top5Item(props) {
                 }}
             >
             <Box sx={{ p: 1 }}>
-                <IconButton aria-label='edit'>
+                <IconButton 
+                    aria-label='edit'
+                    >
                     <EditIcon style={{fontSize:'48pt'}}  />
                 </IconButton>
             </Box>

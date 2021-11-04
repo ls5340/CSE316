@@ -11,6 +11,7 @@ import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import AlertModal from './AlertModal'
 import { GlobalStoreContext } from '../store'
 
 export default function RegisterScreen() {
@@ -32,6 +33,7 @@ export default function RegisterScreen() {
     return (
             <Container component="main" maxWidth="xs">
                 <CssBaseline />
+                <AlertModal />
                 <Box
                     sx={{
                         marginTop: 8,
