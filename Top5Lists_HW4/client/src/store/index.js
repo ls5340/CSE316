@@ -26,6 +26,7 @@ export const GlobalStoreActionType = {
     UNMARK_LIST_FOR_DELETION: "UNMARK_LIST_FOR_DELETION",
     SET_CURRENT_LIST: "SET_CURRENT_LIST",
     SET_ITEM_EDIT_ACTIVE: "SET_ITEM_EDIT_ACTIVE",
+    SET_ITEM_EDIT_INACTIVE: "SET_ITEM_EDIT_INACTIVE",
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE"
 }
 
@@ -139,6 +140,17 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: true,
+                    listMarkedForDeletion: null
+                });
+            }
+            // STOP EDITING A LIST ITEM
+            case GlobalStoreActionType.SET_ITEM_EDIT_INACTIVE: {
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: store.currentList,
+                    newListCounter: store.newListCounter,
+                    isListNameEditActive: false,
+                    isItemEditActive: false,
                     listMarkedForDeletion: null
                 });
             }
@@ -390,6 +402,12 @@ function GlobalStoreContextProvider(props) {
         });
     }
 
+    store.setIsItemEditInactive = function () {
+        storeReducer({
+            type: GlobalStoreActionType.SET_ITEM_EDIT_INACTIVE,
+            payload: null
+        });
+    }
     return (
         <GlobalStoreContext.Provider value={{
             store
