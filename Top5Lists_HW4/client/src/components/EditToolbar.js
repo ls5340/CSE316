@@ -26,19 +26,29 @@ function EditToolbar() {
     let editStatus = false;
     if (store.isListNameEditActive) {
         editStatus = true;
-    }  
+    }
+
+    let disableUndo = true;
+    let disableRedo = true;
+    if (store.canUndo())
+        disableUndo = false;
+    if (store.canRedo())
+        disableRedo = false;
+
     return (
         <div id="edit-toolbar">
             <Button 
                 id='undo-button'
                 onClick={handleUndo}
-                variant="contained">
+                variant="contained"
+                disabled={disableUndo}>
                     <UndoIcon />
             </Button>
             <Button 
                 id='redo-button'
                 onClick={handleRedo}
-                variant="contained">
+                variant="contained"
+                disabled={disableRedo}>
                     <RedoIcon />
             </Button>
             <Button 
