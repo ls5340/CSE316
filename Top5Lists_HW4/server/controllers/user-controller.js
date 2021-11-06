@@ -110,8 +110,6 @@ loginUser = async (req, res) => {
         const salt = await bcrypt.genSalt(saltRounds);
         const passwordHash = await bcrypt.hash(password, salt);
         */
-        console.log(existingUser);
-        console.log(password);
         const match = await bcrypt.compare(password, existingUser.passwordHash);
         if (match) {
             console.log("correct password");
@@ -137,8 +135,8 @@ loginUser = async (req, res) => {
                 .status(400)
                 .json({
                     success: false,
-                    errorMessage: "wrong password"
-                });
+                    errorMessage: "Wrong password"
+            });
         }
         // let error = -1;
         // bcrypt.compare(password, existingUser.passwordHash).then(async function(err, res1) {

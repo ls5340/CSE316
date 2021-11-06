@@ -11,16 +11,14 @@ export const AuthActionType = {
     REGISTER_USER: "REGISTER_USER",
     LOGIN_USER: "LOGIN_USER",
     LOGOUT_USER: "LOGOUT_USER",
-    ALERTING_REG: "ALERTING_REG",
-    ALERTING_LOG: "ALERTING_LOG"
+    ALERTING: "ALERTING",
 }
 
 function AuthContextProvider(props) {
     const [auth, setAuth] = useState({
         user: null,
         loggedIn: false,
-        alertingReg: false,
-        alertingLog: false,
+        alerting: 0,
     });
     const history = useHistory();
 
@@ -55,18 +53,11 @@ function AuthContextProvider(props) {
                     loggedIn: false,
                 });
             }
-            case AuthActionType.ALERTING_REG: {
+            case AuthActionType.ALERTING: {
                 return setAuth({
                     user: null,
                     loggedIn: false,
-                    alertingReg: payload.alerting,
-                })
-            }
-            case AuthActionType.ALERTING_LOG: {
-                return setAuth({
-                    user: null,
-                    loggedIn: false,
-                    alertingLog: payload.alerting,
+                    alerting: payload.alerting,
                 })
             }
             default:
@@ -106,7 +97,23 @@ function AuthContextProvider(props) {
             }
         }
         catch (e) {
-            this.alert(1);
+            let err_msg = e.response.data.errorMessage;
+            switch (err_msg) {
+                case "Please enter all required fields.": 
+                    this.alert(1);
+                    break;
+                case "Please enter a password of at least 8 characters.":
+                    this.alert(2);
+                    break;
+                case "Please enter the same password twice correctly.":
+                    this.alert(3);
+                    break;
+                case "An account with this email address already exists.":
+                    this.alert(4);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -129,8 +136,21 @@ function AuthContextProvider(props) {
                 this.alert(2);
             }
         } catch (e) {
-            console.log("LOGIN BAD");
-            this.alert(2);
+            let err_msg = e.response.data.errorMessage;
+            console.log(err_msg);
+            switch (err_msg) {
+                case "Please enter all required fields.":
+                    this.alert(5);
+                    break;
+                case "An account with this email address does not exist!":
+                    this.alert(6);
+                    break;
+                case "Wrong password":
+                    this.alert(7);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -151,26 +171,14 @@ function AuthContextProvider(props) {
         }
     }
 
-    auth.alert = async function (type) {
-        if (type === 1) {
-            let bool = auth.alertingReg;
-            authReducer({
-                type: AuthActionType.ALERTING_REG,
-                payload: {
-                    alerting: !bool
-                }
-            });
-        }
-        else if (type === 2) {
-            console.log("TYPE 2");
-            let bool = auth.alertingLog;
-            authReducer({
-                type: AuthActionType.ALERTING_LOG,
-                payload: {
-                    alerting: !bool
-                }
-            });
-        }
+    auth.alert = async function (num) {
+        authReducer({
+            type: AuthActionType.ALERTING,
+            payload: {
+                alerting: num
+            }
+        });
+        
     }
 
     return (
