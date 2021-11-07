@@ -91,13 +91,18 @@ function Top5Item(props) {
     let text = <Box sx={{ p: 1, flexGrow: 1 }}>{props.text}</Box>;
     if (editActive) {
         text = <TextField
+            size="medium"
             margin="normal"
-            required
+            sx={{height: 100}}
             fullWidth
+            label="Top 5 Item Name"
+            autoComplete="Top 5 Item Name"
             id={'item-' + (index+1)}
             className={itemClass}
             onKeyPress={handleKeyPress}
             onChange={handleUpdateText}
+            inputProps={{style: {fontSize: 48}}}
+            InputLabelProps={{style: {fontSize: 24}}}
             defaultValue={props.text}
             autoFocus
         />
