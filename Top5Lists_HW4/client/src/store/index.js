@@ -28,6 +28,7 @@ export const GlobalStoreActionType = {
     SET_ITEM_EDIT_ACTIVE: "SET_ITEM_EDIT_ACTIVE",
     SET_ITEM_EDIT_INACTIVE: "SET_ITEM_EDIT_INACTIVE",
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
+    LOG_OUT: "LOG_OUT",
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -163,6 +164,17 @@ function GlobalStoreContextProvider(props) {
                     isListNameEditActive: true,
                     isItemEditActive: false,
                     listMarkedForDeletion: null
+                });
+            }
+            // LOGOUT
+            case GlobalStoreActionType.LOG_OUT: {
+                return setStore({
+                    idNamePairs: [],
+                    currentList: null,
+                    newListCounter: 0,
+                    listNameActive: false,
+                    itemActive: false,
+                    listMarkedForDeletion: null,
                 });
             }
             default:
@@ -407,6 +419,13 @@ function GlobalStoreContextProvider(props) {
             type: GlobalStoreActionType.SET_ITEM_EDIT_INACTIVE,
             payload: null
         });
+    }
+
+    store.logout = function() {
+        storeReducer({
+            type: GlobalStoreActionType.LOG_OUT,
+            payload: null
+        })
     }
     return (
         <GlobalStoreContext.Provider value={{
