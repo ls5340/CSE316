@@ -263,7 +263,6 @@ function GlobalStoreContextProvider(props) {
         const response = await api.getTop5ListPairs();
         if (response.data.success) {
             let pairsArray = response.data.idNamePairs;
-            console.log(pairsArray);
             let newArray = [];
             for (let key in pairsArray) {
                 if (pairsArray[key].email === auth.user.email)
