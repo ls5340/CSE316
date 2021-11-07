@@ -105,7 +105,7 @@ function AuthContextProvider(props) {
                 case "Please enter a password of at least 8 characters.":
                     this.alert(2);
                     break;
-                case "Please enter the same password twice correctly.":
+                case "Please enter the same password twice.":
                     this.alert(3);
                     break;
                 case "An account with this email address already exists.":

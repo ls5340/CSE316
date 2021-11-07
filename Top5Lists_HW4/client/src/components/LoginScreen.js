@@ -14,21 +14,9 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import AlertModal from './AlertModal';
 import { useContext } from 'react';
-import AuthContext from '../auth'
-import { GlobalStoreContext } from '../store'
-
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+import AuthContext from '../auth';
+import { GlobalStoreContext } from '../store';
+import Copyright from './Copyright';
 
 const theme = createTheme();
 
@@ -40,7 +28,6 @@ export default function LoginScreen() {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         // eslint-disable-next-line no-console
-        console.log("uhhh");
         auth.loginUser({
             email: formData.get('email'),
             password: formData.get('password'),

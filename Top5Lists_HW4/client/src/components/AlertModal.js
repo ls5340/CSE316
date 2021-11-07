@@ -21,10 +21,10 @@ const style = {
 
 const style_box = {
     position: 'absolute',
-    top: '40%',
-    left: '40%',
+    top: '37%',
+    left: '37%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    width: 500,
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
@@ -84,16 +84,17 @@ export default function AlertModal() {
             onClose={handleClose}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
+            align="center"
         >
             <Slide in={alerting} direction="right" >
             <Box sx={style_box}>
-            <Typography id="modal-modal-title" variant="h6" component="h2">
+            <Typography id="modal-modal-title" variant="h4" component="h2">
                {text1}
             </Typography>
-            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            <Typography id="modal-modal-description" sx={{ mt: 2, mb: 2 }} variant="h6">
                 {text2}
             </Typography>
-            <Button onClick={handleClose}>Close</Button>
+            <Button onClick={handleClose} variant="outlined" size="large">Close</Button>
             </Box>
             </Slide>
         </Modal>

@@ -44,16 +44,17 @@ export default function DeleteModal() {
             onClose={handleCancel}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
+            align="center"
         >
             <Box sx={style}>
-            <Typography id="modal-modal-title" variant="h6" component="h2">
+            <Typography id="modal-modal-title" variant="h4" component="h2" >
                {text1}
             </Typography>
-            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            <Typography id="modal-modal-description" sx={{ mt: 2, margin: 2}} variant="h6">
                 {text2}
             </Typography>
-            <Button onClick={handleConfirm}>Confirm</Button>
-            <Button onClick={handleCancel}>Close</Button>
+            <Button onClick={handleConfirm} variant="outlined" size="large">Confirm</Button>
+            <Button onClick={handleCancel} variant="outlined" size="large">Close</Button>
             </Box>
         </Modal>
         </div>

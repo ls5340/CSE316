@@ -21,13 +21,11 @@ registerUser = async (req, res) => {
     try {
         const { firstName, lastName, email, password, passwordVerify } = req.body;
         if (!firstName || !lastName || !email || !password || !passwordVerify) {
-            console.log("1");
             return res
                 .status(400)
                 .json({ errorMessage: "Please enter all required fields." });
         }
         if (password.length < 8) {
-            console.log("2");
             return res
                 .status(400)
                 .json({
@@ -35,7 +33,6 @@ registerUser = async (req, res) => {
                 });
         }
         if (password !== passwordVerify) {
-            console.log("3");
             return res
                 .status(400)
                 .json({
@@ -44,7 +41,6 @@ registerUser = async (req, res) => {
         }
         const existingUser = await User.findOne({ email: email });
         if (existingUser) {
-            console.log("4");
             return res
                 .status(400)
                 .json({
@@ -89,14 +85,12 @@ loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) {
-            console.log("1");
             return res
                 .status(400)
                 .json({ errorMessage: "Please enter all required fields." });
         }
         const existingUser = await User.findOne({ email: email });
         if (!existingUser) {
-            console.log("4");
             return res
                 .status(400)
                 .json({
