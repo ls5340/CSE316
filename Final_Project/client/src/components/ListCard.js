@@ -4,8 +4,11 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import ListItem from '@mui/material/ListItem';
 import IconButton from '@mui/material/IconButton';
-import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
+import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { Typography } from '@mui/material'
 import { Link } from 'react-router-dom'
 import Grid from '@mui/material/Grid';
@@ -74,83 +77,66 @@ function ListCard(props) {
                 width: '100%'
             }}
         >
-            
-            
                 <Grid sx={{flexGrow: 1}} container spacing={0.5}>
                     <Grid item xs={12}>
-                        <Typography sx={{fontSize: 32, ml: 2}}>
+                        <Typography sx={{fontSize: 24, ml: 2, fontWeight: 512}}>
                             {idNamePair.name}
                         </Typography>
                     </Grid>
-                    <Grid item xs={12}>
-                        <Typography sx={{fontSize: 16, ml: 2}}>
-                            {idNamePair.name}
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Typography sx={{fontSize: 16, ml: 2}}>
-                            {idNamePair.name}
-                        </Typography>
-                    </Grid>
-                </Grid>
-                <Grid sx={{flexGrow: 1, justifyContent: 'right'}} container spacing={2}>
-                    <Grid item xs={3} >
-                        <Typography sx={{fontSize: 32, textAlign: 'right'}}>
-                            {idNamePair.name}
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={3} >
-                        <Typography sx={{fontSize: 32, textAlign: 'right'}}>
-                            {idNamePair.name}
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={2} >
-                        <Typography sx={{fontSize: 32, textAlign: 'right'}}>
-                            {idNamePair.name}
+                    <Grid item xs={1}>
+                        <Typography sx={{fontSize: 16, ml: 2, fontWeight: 512}}>
+                            By: 
                         </Typography>
                     </Grid>
                     <Grid item xs={10}>
-                        <Typography sx={{fontSize: 32, textAlign: 'right'}}>
-                            {idNamePair.name}
-                        </Typography>
+                        <Link to='/login/' style={{textDecoration: 'none'}}>
+                            <Typography sx={{fontSize: 16, ml: 1, color: 'blue', textDecoration: 'underline', fontWeight: 512}}>
+                                {idNamePair.name}
+                            </Typography>
+                        </Link>
                     </Grid>
-                    <Grid item xs={2}>
-                        <Typography sx={{fontSize: 32, textAlign: 'right'}}>
-                            {idNamePair.name}
-                        </Typography>
+                    <Grid item xs={12}>
+                        <Link to='/login/' style={{textDecoration: 'none'}}>
+                            <Typography sx={{fontSize: 16, ml: 2, color: 'red', textDecoration: 'underline', fontWeight: 512}}>
+                                Edit
+                            </Typography>
+                        </Link>
                     </Grid>
                 </Grid>
-            
-            {/* <Box sx={{width: '15%'}}>
-                <Typography sx={{height: 35, fontSize: 32, ml: 2}}> {idNamePair.name} </Typography>
-                <Typography sx={{height: 35, fontSize: 16, ml: 2, mt: 1}}> Author </Typography>
-                <Typography sx={{height: 35, fontSize: 16, ml: 2, mt: 1}}>
-                    <Link to='/uh/' sx={{color: 'red'}}>
-                        <Typography sx={{fontSize: 16, color:'red'}}> 
-                            Edit 
-                        </Typography>
-                    </Link>
-                </Typography>
-            </Box>
-            <Box sx={{width: '85%', }}>
-                <Box sx={{display: 'flex'}}> 
-                    <Box sx={{ p: 1 }}>
-                        <IconButton onClick={handleToggleEdit} aria-label='edit'>
-                            <EditIcon style={{fontSize:'24pt'}} />
+                <Grid sx={{flexGrow: 1,  textAlign: 'right'}} container spacing={2}>
+                    <Grid item xs={5.5} sx={{display: 'flex', justifyContent: 'right', mt: 2}}>
+                        <IconButton sx={{fontSize: 48}}>
+                            <ThumbUpOutlinedIcon sx={{fontSize: '100%', mt: 1}}></ThumbUpOutlinedIcon>
                         </IconButton>
-                    </Box>
-                    <Box sx={{ p: 1 }}>
-                        <IconButton onClick={(event) => {
-                            handleDeleteList(event, idNamePair._id)
-                        }} aria-label='delete'>
-                            <DeleteIcon style={{fontSize:'24pt'}} />
+                        <Typography sx={{fontSize: 20, mt: 3}}>2M</Typography>
+                    </Grid>
+                    <Grid item xs={5.5} sx={{display: 'flex', justifyContent: 'center', mt: 2}}>
+                        <IconButton sx={{fontSize: 48}}>
+                            <ThumbDownOutlinedIcon sx={{fontSize: '100%', mt: 1}}></ThumbDownOutlinedIcon>
                         </IconButton>
-                    </Box>
-                </Box>
-                <Box sx={{display: 'flex'}}>   
-                        hello
-                </Box>
-            </Box> */}
+                        <Typography sx={{fontSize: 20, mt: 3}}>1k</Typography>
+                    </Grid>
+                    <Grid item xs={1} sx={{display: 'flex', justifyContent: 'center', mt: 2}}>
+                        <IconButton sx={{fontSize: 48}}>
+                            <DeleteIcon sx={{fontSize: '100%', mt: 1}}></DeleteIcon>
+                        </IconButton>
+                    </Grid>
+                    <Grid container spacing={2}>
+                        <Grid item xs={6.9} sx={{display: 'flex', justifyContent: 'right'}}>
+                            <Typography sx={{fontSize: 16, textAlign: 'right', fontWeight: 512, mt: 1.5}}>
+                                Views: 
+                            </Typography>
+                            <Typography sx={{fontSize: 16, textAlign: 'right', fontWeight: 512, ml: 1, mt: 1.5}}>
+                                somenumber
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={5.1}>
+                            <IconButton sx={{fontSize: 48}}>
+                                <ExpandMoreIcon sx={{fontSize: '100%'}} ></ExpandMoreIcon>
+                            </IconButton>
+                        </Grid>
+                    </Grid>
+                </Grid>
         </ListItem>
 
     if (editActive) {
