@@ -66,7 +66,7 @@ function ListCard(props) {
         <ListItem
             id={idNamePair._id}
             key={idNamePair._id}
-            sx={{ marginTop: '1px', display: 'flex', p: 1, height: 100 }}
+            sx={{ display: 'flex', p: 1, height: 128, border: '2px solid', borderRadius: '16px', bgcolor: '#fffded' }}
             button
             onClick={(event) => {
                 handleLoadList(event, idNamePair._id)
@@ -77,7 +77,7 @@ function ListCard(props) {
                 width: '100%'
             }}
         >
-                <Grid sx={{flexGrow: 1}} container spacing={0.5}>
+                {/* <Grid sx={{flexGrow: 1}} container spacing={0.5}>
                     <Grid item xs={12}>
                         <Typography sx={{fontSize: 24, ml: 2, fontWeight: 512}}>
                             {idNamePair.name}
@@ -136,7 +136,55 @@ function ListCard(props) {
                             </IconButton>
                         </Grid>
                     </Grid>
-                </Grid>
+                </Grid> */}
+                <Box sx={{display: 'flex', height: '100%', width: '100%'}}>
+                    <Box sx={{display: 'block', height: '100%', width: '70%'}}>
+                        <Typography sx={{fontSize: 32, ml: 2, fontWeight: 512}}>
+                                    {idNamePair.name}
+                        </Typography>
+                        <Box sx={{display: 'flex', width: '100%'}}>
+                            <Typography sx={{fontSize: 16, ml: 2, fontWeight: 512}}>
+                                    By: 
+                            </Typography>
+                            <Link to='/login/' style={{textDecoration: 'none'}}>
+                                <Typography sx={{fontSize: 16, ml: 1, color: 'blue', textDecoration: 'underline', fontWeight: 512}}>
+                                    {idNamePair.name}
+                                </Typography>
+                            </Link>
+                        </Box>
+                        <Link to='/login/' style={{textDecoration: 'none'}}>
+                            <Typography sx={{fontSize: 16, ml: 2, mt: 1, color: 'red', textDecoration: 'underline', fontWeight: 512}}>
+                                Edit
+                            </Typography>
+                        </Link>
+                    </Box>
+                    <Box sx={{display: 'block', width: '30%'}}>
+                        <Box sx={{display: 'flex'}}>
+                            <IconButton sx={{fontSize: 48, ml: 4}}>
+                                <ThumbUpOutlinedIcon sx={{fontSize: '100%'}}></ThumbUpOutlinedIcon>
+                            </IconButton>
+                            <Typography sx={{fontSize: 20, mt: 2}}>2M</Typography>
+                            <IconButton sx={{fontSize: 48, ml: 10}}>
+                                <ThumbDownOutlinedIcon sx={{fontSize: '100%'}}></ThumbDownOutlinedIcon>
+                            </IconButton>
+                            <Typography sx={{fontSize: 20, mt: 2}}>1k</Typography>
+                            <IconButton sx={{fontSize: 48, ml: 10}}>
+                                <DeleteIcon sx={{fontSize: '100%'}}></DeleteIcon>
+                            </IconButton>
+                        </Box>
+                        <Box sx={{display: 'flex'}}>
+                            <Typography sx={{fontSize: 16, textAlign: 'right', fontWeight: 512, ml: 5, mt: 1}}>
+                                Views: 
+                            </Typography>
+                            <Typography sx={{fontSize: 16, textAlign: 'right', fontWeight: 512, ml: 1, mt: 1}}>
+                                somenumber
+                            </Typography>
+                            <IconButton sx={{fontSize: 36, ml: 22}}>
+                                <ExpandMoreIcon sx={{fontSize: '100%'}} ></ExpandMoreIcon>
+                            </IconButton>
+                        </Box>
+                    </Box>
+                </Box>
         </ListItem>
 
     if (editActive) {
