@@ -1,9 +1,6 @@
 import { createContext, useContext, useState } from 'react'
 import { useHistory } from 'react-router-dom'
-import jsTPS from '../common/jsTPS'
 import api from '../api'
-import MoveItem_Transaction from '../transactions/MoveItem_Transaction'
-import UpdateItem_Transaction from '../transactions/UpdateItem_Transaction'
 import AuthContext from '../auth'
 /*
     This is our global data store. Note that it uses the Flux design pattern,
@@ -18,10 +15,9 @@ export const GlobalStoreContext = createContext({});
 // THESE ARE ALL THE TYPES OF UPDATES TO OUR GLOBAL
 // DATA STORE STATE THAT CAN BE PROCESSED
 export const GlobalStoreActionType = {
-    CHANGE_LIST_NAME: "CHANGE_LIST_NAME",
     CLOSE_CURRENT_LIST: "CLOSE_CURRENT_LIST",
     CREATE_NEW_LIST: "CREATE_NEW_LIST",
-    LOAD_ID_NAME_PAIRS: "LOAD_ID_NAME_PAIRS",
+    LOAD_ALL_LISTS: "LOAD_ALL_LISTS",
     MARK_LIST_FOR_DELETION: "MARK_LIST_FOR_DELETION",
     UNMARK_LIST_FOR_DELETION: "UNMARK_LIST_FOR_DELETION",
     SET_CURRENT_LIST: "SET_CURRENT_LIST",
@@ -29,22 +25,24 @@ export const GlobalStoreActionType = {
     SET_ITEM_EDIT_INACTIVE: "SET_ITEM_EDIT_INACTIVE",
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
     LOG_OUT: "LOG_OUT",
+    LIKE: "LIKE",
+    DISLIKE: "DISLIKE",
+    EXPAND_LIST: "EXPAND_LIST",
 }
-
-// WE'LL NEED THIS TO PROCESS TRANSACTIONS
-const tps = new jsTPS();
 
 // WITH THIS WE'RE MAKING OUR GLOBAL DATA STORE
 // AVAILABLE TO THE REST OF THE APPLICATION
 function GlobalStoreContextProvider(props) {
     // THESE ARE ALL THE THINGS OUR DATA STORE WILL MANAGE
     const [store, setStore] = useState({
-        idNamePairs: [],
         currentList: null,
+        currentAllLists: [],
+        currentFiltered: [],
         newListCounter: 0,
         listNameActive: false,
         itemActive: false,
         listMarkedForDeletion: null,
+        listsExpanded: [],
     });
     const history = useHistory();
 
@@ -56,22 +54,11 @@ function GlobalStoreContextProvider(props) {
     const storeReducer = (action) => {
         const { type, payload } = action;
         switch (type) {
-            // LIST UPDATE OF ITS NAME
-            case GlobalStoreActionType.CHANGE_LIST_NAME: {
-                return setStore({
-                    idNamePairs: payload.idNamePairs,
-                    currentList: null,
-                    newListCounter: store.newListCounter,
-                    isListNameEditActive: false,
-                    isItemEditActive: false,
-                    listMarkedForDeletion: null
-                });
-            }
             // STOP EDITING THE CURRENT LIST
             case GlobalStoreActionType.CLOSE_CURRENT_LIST: {
                 return setStore({
-                    idNamePairs: store.idNamePairs,
                     currentList: null,
+                    currentAllLists: store.currentAllLists,
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
@@ -81,8 +68,8 @@ function GlobalStoreContextProvider(props) {
             // CREATE A NEW LIST
             case GlobalStoreActionType.CREATE_NEW_LIST: {
                 return setStore({
-                    idNamePairs: store.idNamePairs,
                     currentList: payload,
+                    currentAllLists: store.currentAllLists,
                     newListCounter: store.newListCounter + 1,
                     isListNameEditActive: false,
                     isItemEditActive: false,
@@ -90,10 +77,10 @@ function GlobalStoreContextProvider(props) {
                 })
             }
             // GET ALL THE LISTS SO WE CAN PRESENT THEM
-            case GlobalStoreActionType.LOAD_ID_NAME_PAIRS: {
+            case GlobalStoreActionType.LOAD_ALL_LISTS: {
                 return setStore({
-                    idNamePairs: payload,
                     currentList: null,
+                    currentAllLists: payload,
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
@@ -103,8 +90,8 @@ function GlobalStoreContextProvider(props) {
             // PREPARE TO DELETE A LIST
             case GlobalStoreActionType.MARK_LIST_FOR_DELETION: {
                 return setStore({
-                    idNamePairs: store.idNamePairs,
                     currentList: null,
+                    currentAllLists: store.currentAllLists,
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
@@ -114,8 +101,8 @@ function GlobalStoreContextProvider(props) {
             // PREPARE TO DELETE A LIST
             case GlobalStoreActionType.UNMARK_LIST_FOR_DELETION: {
                 return setStore({
-                    idNamePairs: store.idNamePairs,
                     currentList: null,
+                    currentAllLists: store.currentAllLists,
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
@@ -125,8 +112,8 @@ function GlobalStoreContextProvider(props) {
             // UPDATE A LIST
             case GlobalStoreActionType.SET_CURRENT_LIST: {
                 return setStore({
-                    idNamePairs: store.idNamePairs,
                     currentList: payload,
+                    currentAllLists: store.currentAllLists,
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
@@ -136,8 +123,8 @@ function GlobalStoreContextProvider(props) {
             // START EDITING A LIST ITEM
             case GlobalStoreActionType.SET_ITEM_EDIT_ACTIVE: {
                 return setStore({
-                    idNamePairs: store.idNamePairs,
                     currentList: store.currentList,
+                    currentAllLists: store.currentAllLists,
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: true,
@@ -147,8 +134,8 @@ function GlobalStoreContextProvider(props) {
             // STOP EDITING A LIST ITEM
             case GlobalStoreActionType.SET_ITEM_EDIT_INACTIVE: {
                 return setStore({
-                    idNamePairs: store.idNamePairs,
                     currentList: store.currentList,
+                    currentAllLists: store.currentAllLists,
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
@@ -158,8 +145,8 @@ function GlobalStoreContextProvider(props) {
             // START EDITING A LIST NAME
             case GlobalStoreActionType.SET_LIST_NAME_EDIT_ACTIVE: {
                 return setStore({
-                    idNamePairs: store.idNamePairs,
                     currentList: payload,
+                    currentAllLists: store.currentAllLists,
                     newListCounter: store.newListCounter,
                     isListNameEditActive: true,
                     isItemEditActive: false,
@@ -169,13 +156,44 @@ function GlobalStoreContextProvider(props) {
             // LOGOUT
             case GlobalStoreActionType.LOG_OUT: {
                 return setStore({
-                    idNamePairs: [],
                     currentList: null,
+                    currentAllLists: [],
                     newListCounter: 0,
                     listNameActive: false,
                     itemActive: false,
                     listMarkedForDeletion: null,
                 });
+            }
+            case GlobalStoreActionType.LIKE: {
+                return setStore({
+                    currentList: null,
+                    currentAllLists: payload,
+                    newListCounter: 0,
+                    listNameActive: false,
+                    itemActive: false,
+                    listMarkedForDeletion: null,
+                })
+            }
+            case GlobalStoreActionType.DISLIKE: {
+                return setStore({
+                    currentList: null,
+                    currentAllLists: payload,
+                    newListCounter: 0,
+                    listNameActive: false,
+                    itemActive: false,
+                    listMarkedForDeletion: null,
+                })
+            }
+            case GlobalStoreActionType.EXPAND_LIST: {
+                return setStore({
+                    currentList: null,
+                    currentAllLists: store.currentAllLists,
+                    newListCounter: 0,
+                    listNameActive: false,
+                    itemActive: false,
+                    listMarkedForDeletion: null,
+                    expandList: payload,
+                })
             }
             default:
                 return store;
@@ -186,50 +204,14 @@ function GlobalStoreContextProvider(props) {
     // DRIVE THE STATE OF THE APPLICATION. WE'LL CALL THESE IN 
     // RESPONSE TO EVENTS INSIDE OUR COMPONENTS.
 
-    // THIS FUNCTION PROCESSES CHANGING A LIST NAME
-    store.changeListName = async function (id, newName) {
-        let response = await api.getTop5ListById(id);
-        if (response.data.success) {
-            let top5List = response.data.top5List;
-            top5List.name = newName;
-            async function updateList(top5List) {
-                response = await api.updateTop5ListById(top5List._id, top5List);
-                if (response.data.success) {
-                    async function getListPairs(top5List) {
-                        response = await api.getTop5ListPairs();
-                        if (response.data.success) {
-                            let pairsArray = response.data.idNamePairs;
-                            console.log(pairsArray);
-                            let newArray = [];
-                            for (let key in pairsArray) {
-                                if (pairsArray[key].email === auth.user.email)
-                                    newArray.push(pairsArray[key]);
-                            }
-                            storeReducer({
-                                type: GlobalStoreActionType.CHANGE_LIST_NAME,
-                                payload: {
-                                    idNamePairs: newArray,
-                                    top5List: top5List
-                                }
-                            });
-                        }
-                    }
-                    getListPairs(top5List);
-                }
-            }
-            updateList(top5List);
-        }
-    }
-
     // THIS FUNCTION PROCESSES CLOSING THE CURRENTLY LOADED LIST
     store.closeCurrentList = function () {
+        //this.loadAllLists();
         storeReducer({
             type: GlobalStoreActionType.CLOSE_CURRENT_LIST,
             payload: {}
         });
-        
-        tps.clearAllTransactions();
-        history.push("/");
+        history.push('/');
     }
 
     // THIS FUNCTION CREATES A NEW LIST
@@ -238,20 +220,29 @@ function GlobalStoreContextProvider(props) {
         let payload = {
             name: newListName,
             items: ["?", "?", "?", "?", "?"],
-            ownerEmail: auth.user.email
+            itemTuples: [],
+            ownerEmail: auth.user.email,
+            published: "",
+            communityList: false,
+            likes: 0,
+            likedBy: [],
+            dislikes: 0,
+            dislikedBy: [],
+            views: 0,
+            comments: [],
         };
         const response = await api.createTop5List(payload);
         if (response.data.success) {
-            tps.clearAllTransactions();
             let newList = response.data.top5List;
             storeReducer({
                 type: GlobalStoreActionType.CREATE_NEW_LIST,
                 payload: newList
             }
             );
-
+            this.setCurrentList(response.data.top5List._id)
             // IF IT'S A VALID LIST THEN LET'S START EDITING IT
-            history.push("/top5list/" + newList._id);
+            //history.push("/top5list/" + newList._id);
+            //this.setCurrentList()
         }
         else {
             console.log("API FAILED TO CREATE A NEW LIST");
@@ -259,17 +250,18 @@ function GlobalStoreContextProvider(props) {
     }
 
     // THIS FUNCTION LOADS ALL THE ID, NAME PAIRS SO WE CAN LIST ALL THE LISTS
-    store.loadIdNamePairs = async function () {
-        const response = await api.getTop5ListPairs();
+    store.loadAllLists = async function () {
+        const response = await api.getTop5Lists();
         if (response.data.success) {
-            let pairsArray = response.data.idNamePairs;
+            let lists = response.data.lists;
             let newArray = [];
-            for (let key in pairsArray) {
-                if (pairsArray[key].email === auth.user.email)
-                    newArray.push(pairsArray[key]);
+            for (let key in lists) {
+                if (lists[key].ownerEmail === auth.user.email)
+                    newArray.push(lists[key]);
             }
+            console.log(newArray);
             storeReducer({
-                type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
+                type: GlobalStoreActionType.LOAD_ALL_LISTS,
                 payload: newArray
             });
         }
@@ -297,7 +289,7 @@ function GlobalStoreContextProvider(props) {
     store.deleteList = async function (listToDelete) {
         let response = await api.deleteTop5ListById(listToDelete._id);
         if (response.data.success) {
-            store.loadIdNamePairs();
+            store.loadAllLists();
             history.push("/");
         }
     }
@@ -333,68 +325,21 @@ function GlobalStoreContextProvider(props) {
         }
     }
 
-    store.addMoveItemTransaction = function (start, end) {
-        let transaction = new MoveItem_Transaction(store, start, end);
-        tps.addTransaction(transaction);
-    }
-
-    store.addUpdateItemTransaction = function (index, newText) {
-        let oldText = store.currentList.items[index];
-        let transaction = new UpdateItem_Transaction(store, index, oldText, newText);
-        tps.addTransaction(transaction);
-    }
-
-    store.moveItem = function (start, end) {
-        start -= 1;
-        end -= 1;
-        if (start < end) {
-            let temp = store.currentList.items[start];
-            for (let i = start; i < end; i++) {
-                store.currentList.items[i] = store.currentList.items[i + 1];
-            }
-            store.currentList.items[end] = temp;
-        }
-        else if (start > end) {
-            let temp = store.currentList.items[start];
-            for (let i = start; i > end; i--) {
-                store.currentList.items[i] = store.currentList.items[i - 1];
-            }
-            store.currentList.items[end] = temp;
-        }
-
-        // NOW MAKE IT OFFICIAL
-        store.updateCurrentList();
-    }
-
     store.updateItem = function (index, newItem) {
         store.currentList.items[index] = newItem;
-        store.updateCurrentList();
+        //store.updateCurrentList();
     }
 
-    store.updateCurrentList = async function () {
+    store.saveCurrentList = async function (title) {
+        store.currentList.name = title;
         const response = await api.updateTop5ListById(store.currentList._id, store.currentList);
         if (response.data.success) {
             storeReducer({
                 type: GlobalStoreActionType.SET_CURRENT_LIST,
                 payload: store.currentList
             });
+            this.closeCurrentList();
         }
-    }
-
-    store.undo = function () {
-        tps.undoTransaction();
-    }
-
-    store.redo = function () {
-        tps.doTransaction();
-    }
-
-    store.canUndo = function() {
-        return tps.hasTransactionToUndo();
-    }
-
-    store.canRedo = function() {
-        return tps.hasTransactionToRedo();
     }
 
     // THIS FUNCTION ENABLES THE PROCESS OF EDITING A LIST NAME
@@ -420,6 +365,106 @@ function GlobalStoreContextProvider(props) {
         });
     }
 
+    store.publishCurrentList = async function() {
+
+    }
+
+    store.like = async function(id) {
+        let list = "";
+        for (let key in store.currentAllLists) {
+            if (store.currentAllLists[key]._id === id) {
+                list = store.currentAllLists[key];
+                break;
+            }
+        }
+        let index = list.likedBy.indexOf(auth.user.email);
+        if (index < 0) {
+            list.likes += 1;
+            list.likedBy.push(auth.user.email);
+            index = list.dislikedBy.indexOf(auth.user.email);
+            if (index >= 0) {
+                list.dislikes -= 1;
+                list.dislikedBy.splice(index, 1);
+            }
+        }
+        else {
+            list.likes -= 1;
+            list.likedBy.splice(index, 1);
+        }
+        
+        const response = await api.updateTop5ListById(id, list);
+        if (response.data.success) {
+            storeReducer({
+                type: GlobalStoreActionType.LIKE,
+                payload: store.currentAllLists,
+            });
+        }
+    }
+
+    store.dislike = async function(id) {
+        let list = "";
+        for (let key in store.currentAllLists) {
+            if (store.currentAllLists[key]._id === id) {
+                list = store.currentAllLists[key];
+                break;
+            }
+        }
+        let index = list.dislikedBy.indexOf(auth.user.email);
+        if (index < 0) {
+            list.dislikes += 1;
+            list.dislikedBy.push(auth.user.email);
+            index = list.likedBy.indexOf(auth.user.email);
+            if (index >= 0) {
+                list.likes -= 1;
+                list.likedBy.splice(index, 1);
+            }
+        }
+        else {
+            list.dislikes -= 1;
+            list.dislikedBy.splice(index, 1);
+        }
+        
+        const response = await api.updateTop5ListById(id, list);
+        if (response.data.success) {
+            storeReducer({
+                type: GlobalStoreActionType.DISLIKE,
+                payload: store.currentAllLists,
+            });
+        }
+    }
+
+    store.expandList = (id) => {
+        let list = [];
+        if (store.listsExpanded) {
+            list = store.listsExpanded;
+            let index = list.indexOf(id);
+            if (index < 0) {
+                list.push(id);
+            }
+            else {
+                list.splice(index, 1);
+            }
+        }
+        else {
+            list.push(id);
+        }
+        storeReducer({
+            type: GlobalStoreActionType.EXPAND_LIST,
+            payload: list,
+        })
+    }
+
+    store.sortBy = (num) => {
+
+    }
+
+    store.search = (num) => {
+
+    }
+
+    store.comment = (num) => {
+
+    }
     store.logout = function() {
         storeReducer({
             type: GlobalStoreActionType.LOG_OUT,

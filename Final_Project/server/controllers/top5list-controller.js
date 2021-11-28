@@ -136,6 +136,22 @@ getTop5ListPairs = async (req, res) => {
         }
     }).catch(err => console.log(err))
 }
+getTop5Lists = async (req, res) => {
+    await Top5List.find({ }, (err, top5Lists) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
+        if (!top5Lists) {
+            console.log("!top5Lists.length");
+            return res
+                .status(404)
+                .json({ success: false, error: 'Top 5 Lists not found' })
+        }
+        else {
+            return res.status(200).json({ success: true, lists: top5Lists })
+        }
+    }).catch(err => console.log(err))
+}
 
 module.exports = {
     createTop5List,
@@ -143,5 +159,6 @@ module.exports = {
     deleteTop5List,
     getTop5Lists,
     getTop5ListPairs,
-    getTop5ListById
+    getTop5ListById,
+    getTop5Lists,
 }

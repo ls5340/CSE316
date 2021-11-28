@@ -12,6 +12,10 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import FunctionsIcon from '@mui/icons-material/Functions';
 import TextField from '@mui/material/TextField';
 import SortIcon from '@mui/icons-material/Sort';
+import Top5Item from './Top5Item.js'
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import WorkspaceScreen from './WorkspaceScreen'
 
 /*
     This React component lists all the top5 lists in the UI.
@@ -22,31 +26,42 @@ const HomeScreen = () => {
     const { store } = useContext(GlobalStoreContext);
 
     useEffect(() => {
-        store.loadIdNamePairs();
+        store.loadAllLists();
     }, []);
 
     function handleCreateNewList() {
         store.createNewList();
     }
+
+    function handleSaveList() {
+        store.saveCurrentList();
+    }
     let listCard = "";
     if (store) {
-        listCard = 
-            <List sx={{ width: '95%', left: '2%', top: '3%', bgcolor: 'transparent'}}>
-            {
-                store.idNamePairs.map((pair) => (
-                    <ListCard
-                        key={pair._id}
-                        idNamePair={pair}
-                        selected={false}
-                    />
-                ))
-            }
-            </List>;
+        // if (store.currentList) {
+        //     history.push()
+        // }
+        // else {
+            listCard = 
+                <div id="list-selector-list">
+                    <List sx={{ width: '95%', left: '2%', top: '3%', bgcolor: 'transparent'}}>
+                    {
+                        store.currentAllLists.map((aList) => (
+                            <ListCard
+                                key={aList._id}
+                                list={aList}
+                                selected={false}
+                            />
+                        ))
+                    }
+                    </List>;
+                </div>
+        
     }
     return (
-        <div id="top5-list-selector">
+        <Box id="top5-list-selector" sx={{display: 'block'}}>
             <DeleteModal />
-            <div id="list-selector-heading">
+            <Box id="list-selector-heading">
             <IconButton> 
                 <HomeOutlinedIcon sx={{fontSize: 64}}> </HomeOutlinedIcon>
             </IconButton>
@@ -65,6 +80,13 @@ const HomeScreen = () => {
                 <SortIcon sx={{fontSize: 64}}> </SortIcon>
             </IconButton>
                 
+            </Box>
+            
+            <Box sx={{height: '100%'}}>
+            {listCard}
+            </Box>
+            
+            <Box sx={{width: '100%', justifyContent: 'center', display: 'flex'}}>
             <Fab 
                 color="primary" 
                 aria-label="add"
@@ -74,13 +96,8 @@ const HomeScreen = () => {
                 <AddIcon />
             </Fab>
                 <Typography variant="h2">Your Lists</Typography>
-            </div>
-            <div id="list-selector-list">
-                {
-                    listCard
-                }
-            </div>
-        </div>)
+            </Box>
+        </Box>)
 }
 
 export default HomeScreen;
