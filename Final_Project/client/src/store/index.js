@@ -192,7 +192,7 @@ function GlobalStoreContextProvider(props) {
                     listNameActive: false,
                     itemActive: false,
                     listMarkedForDeletion: null,
-                    expandList: payload,
+                    listsExpanded: payload,
                 })
             }
             default:
@@ -451,7 +451,7 @@ function GlobalStoreContextProvider(props) {
         storeReducer({
             type: GlobalStoreActionType.EXPAND_LIST,
             payload: list,
-        })
+        });
     }
 
     store.sortBy = (num) => {

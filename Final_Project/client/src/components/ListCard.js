@@ -190,13 +190,12 @@ function ListCard(props) {
 
     if (store.listsExpanded) {
         let index = store.listsExpanded.indexOf(list._id);
-        console.log(index);
         if (index >= 0) {
             cardElement =
                 <ListItem
                     id={list._id}
                     key={list._id}
-                    sx={{ display: 'flex', p: 1, height: 128, border: '2px solid', borderRadius: '16px', bgcolor: '#fffded', mt: 1 }}
+                    sx={{ display: 'flex', p: 1, height: 512, border: '2px solid', borderRadius: '16px', bgcolor: '#ccccff', mt: 1 }}
                     button
                     style={{
                         fontSize: '48pt',
@@ -263,49 +262,76 @@ function ListCard(props) {
                                 </Grid>
                             </Grid>
                         </Grid> */}
-                        <Box sx={{display: 'flex', height: '100%', width: '100%'}}>
-                            <Box sx={{display: 'block', height: '100%', width: '70%'}}>
-                                <Typography sx={{fontSize: 32, ml: 2, fontWeight: 512}}>
-                                            {list.name}
-                                </Typography>
-                                <Box sx={{display: 'flex', width: '100%'}}>
-                                    <Typography sx={{fontSize: 16, ml: 2, fontWeight: 512}}>
-                                            By: 
+                        <Box sx={{height: '100%', width: '100%'}}>
+                            <Box sx={{display: 'flex', height: '16%', width: '100%'}}>
+                                <Box sx={{display: 'block', height: '100%', width: '70%'}}>
+                                    <Typography sx={{fontSize: 32, ml: 2, fontWeight: 512}}>
+                                                {list.name}
                                     </Typography>
-                                    <Link to='/login/' style={{textDecoration: 'none'}}>
-                                        <Typography sx={{fontSize: 16, ml: 1, color: 'blue', textDecoration: 'underline', fontWeight: 512}}>
-                                            {list.name}
+                                    <Box sx={{display: 'flex', width: '100%'}}>
+                                        <Typography sx={{fontSize: 16, ml: 2, fontWeight: 512}}>
+                                                By: 
                                         </Typography>
-                                    </Link>
+                                        <Link to='/login/' style={{textDecoration: 'none'}}>
+                                            <Typography sx={{fontSize: 16, ml: 1, color: 'blue', textDecoration: 'underline', fontWeight: 512}}>
+                                                {list.name}
+                                            </Typography>
+                                        </Link>
+                                    </Box>
                                 </Box>
-                                <Typography onClick={(event) => {handleLoadList(event, list._id)}} sx={{fontSize: 16, ml: 2, mt: 1, color: 'red', textDecoration: 'underline', fontWeight: 512, width: 32}}>
-                                    Edit
-                                </Typography>
+                                <Box sx={{display: 'block', width: '30%'}}>
+                                    <Box sx={{display: 'flex'}}>
+                                        <IconButton sx={{fontSize: 48, ml: 4}}>
+                                            <ThumbUpOutlinedIcon onClick={handleLike} sx={{fontSize: '100%'}}></ThumbUpOutlinedIcon>
+                                        </IconButton>
+                                        <Typography sx={{fontSize: 20, mt: 2}}>{list.likes}</Typography>
+                                        <IconButton sx={{fontSize: 48, ml: 10}}>
+                                            <ThumbDownOutlinedIcon onClick={handleDislike} sx={{fontSize: '100%'}}></ThumbDownOutlinedIcon>
+                                        </IconButton>
+                                        <Typography sx={{fontSize: 20, mt: 2}}>{list.dislikes}</Typography>
+                                        <IconButton sx={{fontSize: 48, ml: 10}}>
+                                            <DeleteIcon sx={{fontSize: '100%'}}></DeleteIcon>
+                                        </IconButton>
+                                    </Box>
+                                    <Box sx={{display: 'flex'}}>
+                                        <Typography sx={{fontSize: 16, textAlign: 'right', fontWeight: 512, ml: 5, mt: 1}}>
+                                            Views: 
+                                        </Typography>
+                                        <Typography sx={{fontSize: 16, textAlign: 'right', fontWeight: 512, ml: 1, mt: 1}}>
+                                            somenumber
+                                        </Typography>
+                                        <IconButton sx={{fontSize: 36, ml: 22}}>
+                                            <ExpandMoreIcon sx={{fontSize: '100%'}} ></ExpandMoreIcon>
+                                        </IconButton>
+                                    </Box>
+                                </Box>
                             </Box>
-                            <Box sx={{display: 'block', width: '30%'}}>
-                                <Box sx={{display: 'flex'}}>
-                                    <IconButton sx={{fontSize: 48, ml: 4}}>
-                                        <ThumbUpOutlinedIcon onClick={handleLike} sx={{fontSize: '100%'}}></ThumbUpOutlinedIcon>
-                                    </IconButton>
-                                    <Typography sx={{fontSize: 20, mt: 2}}>{list.likes}</Typography>
-                                    <IconButton sx={{fontSize: 48, ml: 10}}>
-                                        <ThumbDownOutlinedIcon onClick={handleDislike} sx={{fontSize: '100%'}}></ThumbDownOutlinedIcon>
-                                    </IconButton>
-                                    <Typography sx={{fontSize: 20, mt: 2}}>{list.dislikes}</Typography>
-                                    <IconButton sx={{fontSize: 48, ml: 10}}>
-                                        <DeleteIcon sx={{fontSize: '100%'}}></DeleteIcon>
-                                    </IconButton>
+                            <Box sx={{display: 'flex', width: "100%", height: "70%", ml: 2}}>
+                                <Box sx={{width: "50%", height: "100%", bgcolor: "blue", border: '2px', borderRadius: '16px', p: 1}}>
+                                    <Typography sx={{fontSize: 48, width: "100%", color: "yellow"}}>
+                                        1. {list.items[0]}
+                                    </Typography>
+                                    <Typography sx={{fontSize: 48, width: "100%", color: "yellow"}}>
+                                        2. {list.items[1]}
+                                    </Typography>
+                                    <Typography sx={{fontSize: 48, width: "100%", color: "yellow"}}>
+                                        3. {list.items[2]}
+                                    </Typography>
+                                    <Typography sx={{fontSize: 48, width: "100%", color: "yellow"}}>
+                                        4. {list.items[3]}
+                                    </Typography>
+                                    <Typography sx={{fontSize: 48, width: "100%", color: "yellow"}}>
+                                        5. {list.items[4]}
+                                    </Typography>
                                 </Box>
-                                <Box sx={{display: 'flex'}}>
-                                    <Typography sx={{fontSize: 16, textAlign: 'right', fontWeight: 512, ml: 5, mt: 1}}>
-                                        Views: 
-                                    </Typography>
-                                    <Typography sx={{fontSize: 16, textAlign: 'right', fontWeight: 512, ml: 1, mt: 1}}>
-                                        somenumber
-                                    </Typography>
-                                    <IconButton sx={{fontSize: 36, ml: 22}}>
-                                        <ExpandMoreIcon sx={{fontSize: '100%'}} ></ExpandMoreIcon>
-                                    </IconButton>
+                                <Box>
+                                </Box>
+                            </Box>
+                            <Box sx={{display: 'flex', width: "100%", height: "14%"}}>
+                                <Box>
+                                    <Typography></Typography>
+                                </Box>
+                                <Box>
                                 </Box>
                             </Box>
                         </Box>
