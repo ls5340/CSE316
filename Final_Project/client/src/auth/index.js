@@ -97,6 +97,7 @@ function AuthContextProvider(props) {
             }
         }
         catch (e) {
+            console.log(e.response);
             let err_msg = e.response.data.errorMessage;
             switch (err_msg) {
                 case "Please enter all required fields.": 
@@ -136,6 +137,7 @@ function AuthContextProvider(props) {
                 this.alert(2);
             }
         } catch (e) {
+            console.log(e);
             let err_msg = e.response.data.errorMessage;
             console.log(err_msg);
             switch (err_msg) {

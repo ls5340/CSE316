@@ -25,6 +25,10 @@ function WorkspaceScreen() {
         setValue(event.target.value);
     }
 
+    function handlePublish(event) {
+        store.publishCurrentList();
+    }
+
     let lists = "";
     if (store.currentList) {
         lists = 
@@ -54,7 +58,7 @@ function WorkspaceScreen() {
         </Box>
         <Box sx={{display: 'flex', width: '100%', height: '10%', mt: 1, justifyContent: 'right'}}>
             <Button onClick={handleSaveList} sx={{width: '10%', height: '100%', bgcolor: 'gray', color: 'black'}}>Save</Button>
-            <Button sx={{width: '10%', height: '100%', bgcolor: 'gray', color: 'black', ml: 2}}>Publish</Button>
+            <Button onClick={handlePublish} sx={{width: '10%', height: '100%', bgcolor: 'gray', color: 'black', ml: 2}}>Publish</Button>
         </Box>
     </Box>
     }

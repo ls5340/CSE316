@@ -27,7 +27,9 @@ export const GlobalStoreActionType = {
     LOG_OUT: "LOG_OUT",
     LIKE: "LIKE",
     DISLIKE: "DISLIKE",
+    PUBLISH_CURRENT_LIST: "PUBLISH_CURRENT_LIST",
     EXPAND_LIST: "EXPAND_LIST",
+    COMMENT: "COMMENT",
 }
 
 // WITH THIS WE'RE MAKING OUR GLOBAL DATA STORE
@@ -172,6 +174,7 @@ function GlobalStoreContextProvider(props) {
                     listNameActive: false,
                     itemActive: false,
                     listMarkedForDeletion: null,
+                    listsExpanded: store.listsExpanded,
                 })
             }
             case GlobalStoreActionType.DISLIKE: {
@@ -182,6 +185,18 @@ function GlobalStoreContextProvider(props) {
                     listNameActive: false,
                     itemActive: false,
                     listMarkedForDeletion: null,
+                    listsExpanded: store.listsExpanded,
+                })
+            }
+            case GlobalStoreActionType.PUBLISH_CURRENT_LIST: {
+                return setStore({
+                    currentList: payload,
+                    currentAllLists: store.currentAllLists,
+                    newListCounter: store.newListCounter,
+                    listNameActive: false,
+                    itemActive: false,
+                    listMarkedForDeletion: null,
+                    //listsExpanded: payload.listsExpanded,
                 })
             }
             case GlobalStoreActionType.EXPAND_LIST: {
@@ -193,6 +208,17 @@ function GlobalStoreContextProvider(props) {
                     itemActive: false,
                     listMarkedForDeletion: null,
                     listsExpanded: payload,
+                })
+            }
+            case GlobalStoreActionType.COMMENT: {
+                return setStore({
+                    currentList: null,
+                    currentAllLists: store.currentAllLists,
+                    newListCounter: 0,
+                    listNameActive: false,
+                    itemActive: false,
+                    listMarkedForDeletion: null,
+                    listsExpanded: store.listsExpanded,
                 })
             }
             default:
@@ -222,7 +248,7 @@ function GlobalStoreContextProvider(props) {
             items: ["?", "?", "?", "?", "?"],
             itemTuples: [],
             ownerEmail: auth.user.email,
-            published: "",
+            published: null,
             communityList: false,
             likes: 0,
             likedBy: [],
@@ -230,6 +256,7 @@ function GlobalStoreContextProvider(props) {
             dislikedBy: [],
             views: 0,
             comments: [],
+            commensBy: [],
         };
         const response = await api.createTop5List(payload);
         if (response.data.success) {
@@ -256,7 +283,7 @@ function GlobalStoreContextProvider(props) {
             let lists = response.data.lists;
             let newArray = [];
             for (let key in lists) {
-                if (lists[key].ownerEmail === auth.user.email)
+                if (lists[key].ownerEmail === auth.user.email && !lists[key].communityList)
                     newArray.push(lists[key]);
             }
             console.log(newArray);
@@ -287,10 +314,61 @@ function GlobalStoreContextProvider(props) {
     }
 
     store.deleteList = async function (listToDelete) {
-        let response = await api.deleteTop5ListById(listToDelete._id);
-        if (response.data.success) {
-            store.loadAllLists();
-            history.push("/");
+        if (listToDelete.published) {
+            const response = await api.getTop5Lists();
+            if (response.data.success) {
+                let lists = response.data.lists;
+                let found = null;
+                for (let key in lists) {
+                    if (key.communityList && key.name === listToDelete.name) {
+                        found = key;
+                        break;
+                    }
+                }
+                if (found) {
+                    console.log("deleting?")
+                    for (let i = 0; i < 5; i++) {
+                        for (let j = 0; j < found.itemTuples.length; j++) {
+                            if (found.itemTuples[j][0] === listToDelete.items[i]) {
+                                found.itemTuples[j][1] -= 5 - i;
+                                if (found.itemTuples[j][1] === 0) {
+                                    found.itemTuples.splice(j, 1);
+                                    found.items.splice(found.items.indexOf(listToDelete.items[i], 1));
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    if (found.items.length === 0) {
+                        let response = await api.deleteTop5ListById(found._id);
+                        if (response.data.success) {
+                            console.log("community list deleted");
+                            let response = await api.deleteTop5ListById(listToDelete._id);
+                            if (response.data.success) {
+                                store.loadAllLists();
+                                history.push("/");
+                            }
+                        }
+                    }
+                    else {
+                        let response = await api.updateTop5ListById(found._id, found);
+                        if (response.data.success) {
+                            let response = await api.deleteTop5ListById(listToDelete._id);
+                            if (response.data.success) {
+                                store.loadAllLists();
+                                history.push("/");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            let response = await api.deleteTop5ListById(listToDelete._id);
+            if (response.data.success) {
+                store.loadAllLists();
+                history.push("/");
+            }
         }
     }
 
@@ -366,7 +444,123 @@ function GlobalStoreContextProvider(props) {
     }
 
     store.publishCurrentList = async function() {
+        let lists = store.currentAllLists;
+        let found = false;
+        for (let key in lists) {
+            if (lists[key].published !== null && lists[key].name === store.currentList.name) {
+                found = true;
+                break;
+            }
+        }
+        if (found) {
+            // show error
+        }
+        else {
+            const response = await api.getTop5Lists();
+            if (response.data.success) {
+                let lists1 = response.data.lists;
+                let found1 = null;
+                for (let key in lists1) {
+                    if (lists1[key].published !== null && lists1[key].name === store.currentList.name && lists1[key].communityList) {
+                        found1 = lists1[key];
+                        break;
+                    }
+                }
+                if (found1) {
+                    console.log("HERE");
+                    for (let i = 0; i < 5; i++) {
+                        let exists = found1.items.indexOf(store.currentList.items[i]);
+                        if (exists < 0) {
+                            found1.items.push(store.currentList.items[i]);
+                            found1.itemTuples.push([store.currentList.items[i], 5 - i])
+                        }
+                        else {
+                            for (let j = 0; j < found1.itemTuples.length; j++) {
+                                if (found1.itemTuples[j][0] === store.currentList.items[i]) {
+                                    console.log("WIN" + found1.itemTuples[j][0]);
+                                    
+                                    found1.itemTuples[j][1] += 5 - i;
+                                    break;
+                                }
+                            }
+                        }
+                    }
 
+                    found1.itemTuples.sort((a, b) => {
+                        return a[1] > b[1] ? -1 : (a[1] === b[1] ? (a[0] > b[0] ? 1 : -1) : 1)
+                    })
+                    const response = await api.updateTop5ListById(found1._id, found1);
+                    if (response.data.success) {
+                        async function updateList() {
+                            let list2 = store.currentList;
+                            list2.published = new Date();
+                            const response = await api.updateTop5ListById(list2._id, list2);
+                            if (response.data.success) {
+                                storeReducer({
+                                    type: GlobalStoreActionType.PUBLISH_CURRENT_LIST,
+                                    payload: store.currentList
+                                });
+                                store.closeCurrentList();
+                            }
+                        }
+                        updateList();
+                    }
+                }
+                else {
+                    let tuples = [
+                        [store.currentList.items[0], 5],
+                        [store.currentList.items[1], 4],
+                        [store.currentList.items[2], 3],
+                        [store.currentList.items[3], 2],
+                        [store.currentList.items[4], 1],
+                    ];
+
+                    let payload = {
+                        name: store.currentList.name,
+                        items: store.currentList.items,
+                        itemTuples: tuples,
+                        ownerEmail: auth.user.email,
+                        published: new Date(),
+                        communityList: true,
+                        likes: 0,
+                        likedBy: [],
+                        dislikes: 0,
+                        dislikedBy: [],
+                        views: 0,
+                        comments: [],
+                        commensBy: [],
+                    };
+                    const response = await api.createTop5List(payload);
+                    if (response.data.success) {
+                        async function updateList() {
+                            let list2 = store.currentList;
+                            list2.published = new Date();
+                            const response = await api.updateTop5ListById(list2._id, list2);
+                            if (response.data.success) {
+                                storeReducer({
+                                    type: GlobalStoreActionType.PUBLISH_CURRENT_LIST,
+                                    payload: store.currentList
+                                });
+                                store.closeCurrentList();
+                            }
+                        }
+                        updateList();
+                    }
+                }
+            }
+
+            let list = store.currentList;
+            list.published = new Date();
+            const response1 = await api.updateTop5ListById(list._id, list);
+            if (response1.data.success) {
+                storeReducer({
+                    type: GlobalStoreActionType.PUBLISH_CURRENT_LIST,
+                    payload: {
+                        
+                    }
+                });
+            }
+        }
     }
 
     store.like = async function(id) {
@@ -454,6 +648,26 @@ function GlobalStoreContextProvider(props) {
         });
     }
 
+    store.comment = async function (id, value) {
+        let list = "";
+        for (let key in store.currentAllLists) {
+            if (store.currentAllLists[key]._id === id) {
+                list = store.currentAllLists[key];
+                break;
+            }
+        }
+        list.comments.unshift(value);
+        list.commentsBy.unshift(auth.user.email);
+    
+        const response = await api.updateTop5ListById(id, list);
+        if (response.data.success) {
+            storeReducer({
+                type: GlobalStoreActionType.COMMENT,
+                payload: null,
+            });
+        }
+    }
+
     store.sortBy = (num) => {
 
     }
@@ -462,9 +676,6 @@ function GlobalStoreContextProvider(props) {
 
     }
 
-    store.comment = (num) => {
-
-    }
     store.logout = function() {
         storeReducer({
             type: GlobalStoreActionType.LOG_OUT,

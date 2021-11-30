@@ -11,7 +11,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { Typography } from '@mui/material'
 import { Link } from 'react-router-dom'
-import Grid from '@mui/material/Grid';
+import List from '@mui/material/List';
 
 /*
     This is a card in our list of top 5 lists. It lets select
@@ -41,9 +41,9 @@ function ListCard(props) {
         setEditActive(newActive);
     }
 
-    async function handleDeleteList(event, id) {
+    async function handleDeleteList(event) {
         event.stopPropagation();
-        store.markListForDeletion(id);
+        store.markListForDeletion(list._id);
     }
 
     function handleKeyPress(event) {
@@ -69,6 +69,25 @@ function ListCard(props) {
         store.expandList(list._id);
     }
 
+    function handleComment(event) {
+        if (event.code === "Enter") {
+            store.comment(list._id, event.target.value);
+        }
+    }
+
+    let edit = 
+            <Typography onClick={(event) => {handleLoadList(event, list._id)}} sx={{fontSize: 16, ml: 2, mt: 1, color: 'red', textDecoration: 'underline', fontWeight: 512, width: 32}}>
+                Edit
+            </Typography>
+    
+    if (list.published != null) {
+        edit = 
+        <Typography sx={{fontSize: 16, ml: 2, mt: 1, fontWeight: 512, width: 400}}>
+            Published: {list.published}
+        </Typography>
+
+    }
+
     let cardElement =
         <ListItem
             id={list._id}
@@ -80,66 +99,6 @@ function ListCard(props) {
                 width: '100%'
             }}
         >
-                {/* <Grid sx={{flexGrow: 1}} container spacing={0.5}>
-                    <Grid item xs={12}>
-                        <Typography sx={{fontSize: 24, ml: 2, fontWeight: 512}}>
-                            {idNamePair.name}
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={1}>
-                        <Typography sx={{fontSize: 16, ml: 2, fontWeight: 512}}>
-                            By: 
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={10}>
-                        <Link to='/login/' style={{textDecoration: 'none'}}>
-                            <Typography sx={{fontSize: 16, ml: 1, color: 'blue', textDecoration: 'underline', fontWeight: 512}}>
-                                {idNamePair.name}
-                            </Typography>
-                        </Link>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Link to='/login/' style={{textDecoration: 'none'}}>
-                            <Typography sx={{fontSize: 16, ml: 2, color: 'red', textDecoration: 'underline', fontWeight: 512}}>
-                                Edit
-                            </Typography>
-                        </Link>
-                    </Grid>
-                </Grid>
-                <Grid sx={{flexGrow: 1,  textAlign: 'right'}} container spacing={2}>
-                    <Grid item xs={5.5} sx={{display: 'flex', justifyContent: 'right', mt: 2}}>
-                        <IconButton sx={{fontSize: 48}}>
-                            <ThumbUpOutlinedIcon sx={{fontSize: '100%', mt: 1}}></ThumbUpOutlinedIcon>
-                        </IconButton>
-                        <Typography sx={{fontSize: 20, mt: 3}}>2M</Typography>
-                    </Grid>
-                    <Grid item xs={5.5} sx={{display: 'flex', justifyContent: 'center', mt: 2}}>
-                        <IconButton sx={{fontSize: 48}}>
-                            <ThumbDownOutlinedIcon sx={{fontSize: '100%', mt: 1}}></ThumbDownOutlinedIcon>
-                        </IconButton>
-                        <Typography sx={{fontSize: 20, mt: 3}}>1k</Typography>
-                    </Grid>
-                    <Grid item xs={1} sx={{display: 'flex', justifyContent: 'center', mt: 2}}>
-                        <IconButton sx={{fontSize: 48}}>
-                            <DeleteIcon sx={{fontSize: '100%', mt: 1}}></DeleteIcon>
-                        </IconButton>
-                    </Grid>
-                    <Grid container spacing={2}>
-                        <Grid item xs={6.9} sx={{display: 'flex', justifyContent: 'right'}}>
-                            <Typography sx={{fontSize: 16, textAlign: 'right', fontWeight: 512, mt: 1.5}}>
-                                Views: 
-                            </Typography>
-                            <Typography sx={{fontSize: 16, textAlign: 'right', fontWeight: 512, ml: 1, mt: 1.5}}>
-                                somenumber
-                            </Typography>
-                        </Grid>
-                        <Grid item xs={5.1}>
-                            <IconButton sx={{fontSize: 48}}>
-                                <ExpandMoreIcon sx={{fontSize: '100%'}} ></ExpandMoreIcon>
-                            </IconButton>
-                        </Grid>
-                    </Grid>
-                </Grid> */}
                 <Box sx={{display: 'flex', height: '100%', width: '100%'}}>
                     <Box sx={{display: 'block', height: '100%', width: '70%'}}>
                         <Typography sx={{fontSize: 32, ml: 2, fontWeight: 512}}>
@@ -151,13 +110,11 @@ function ListCard(props) {
                             </Typography>
                             <Link to='/login/' style={{textDecoration: 'none'}}>
                                 <Typography sx={{fontSize: 16, ml: 1, color: 'blue', textDecoration: 'underline', fontWeight: 512}}>
-                                    {list.name}
+                                    {list.ownerEmail}
                                 </Typography>
                             </Link>
                         </Box>
-                        <Typography onClick={(event) => {handleLoadList(event, list._id)}} sx={{fontSize: 16, ml: 2, mt: 1, color: 'red', textDecoration: 'underline', fontWeight: 512, width: 32}}>
-                            Edit
-                        </Typography>
+                        {edit}
                     </Box>
                     <Box sx={{display: 'block', width: '30%'}}>
                         <Box sx={{display: 'flex'}}>
@@ -169,8 +126,8 @@ function ListCard(props) {
                                 <ThumbDownOutlinedIcon onClick={handleDislike} sx={{fontSize: '100%'}}></ThumbDownOutlinedIcon>
                             </IconButton>
                             <Typography sx={{fontSize: 20, mt: 2}}>{list.dislikes}</Typography>
-                            <IconButton sx={{fontSize: 48, ml: 10}}>
-                                <DeleteIcon sx={{fontSize: '100%'}}></DeleteIcon>
+                            <IconButton sx={{fontSize: 48, ml: 12}}>
+                                <DeleteIcon onClick={handleDeleteList} sx={{fontSize: '100%'}}></DeleteIcon>
                             </IconButton>
                         </Box>
                         <Box sx={{display: 'flex'}}>
@@ -178,9 +135,9 @@ function ListCard(props) {
                                 Views: 
                             </Typography>
                             <Typography sx={{fontSize: 16, textAlign: 'right', fontWeight: 512, ml: 1, mt: 1}}>
-                                somenumber
+                                {list.views}
                             </Typography>
-                            <IconButton sx={{fontSize: 36, ml: 22}}>
+                            <IconButton sx={{fontSize: 36, ml: 32}}>
                                 <ExpandMoreIcon onClick={handleExpand} sx={{fontSize: '100%'}}></ExpandMoreIcon>
                             </IconButton>
                         </Box>
@@ -202,66 +159,6 @@ function ListCard(props) {
                         width: '100%'
                     }}
                 >
-                        {/* <Grid sx={{flexGrow: 1}} container spacing={0.5}>
-                            <Grid item xs={12}>
-                                <Typography sx={{fontSize: 24, ml: 2, fontWeight: 512}}>
-                                    {idNamePair.name}
-                                </Typography>
-                            </Grid>
-                            <Grid item xs={1}>
-                                <Typography sx={{fontSize: 16, ml: 2, fontWeight: 512}}>
-                                    By: 
-                                </Typography>
-                            </Grid>
-                            <Grid item xs={10}>
-                                <Link to='/login/' style={{textDecoration: 'none'}}>
-                                    <Typography sx={{fontSize: 16, ml: 1, color: 'blue', textDecoration: 'underline', fontWeight: 512}}>
-                                        {idNamePair.name}
-                                    </Typography>
-                                </Link>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <Link to='/login/' style={{textDecoration: 'none'}}>
-                                    <Typography sx={{fontSize: 16, ml: 2, color: 'red', textDecoration: 'underline', fontWeight: 512}}>
-                                        Edit
-                                    </Typography>
-                                </Link>
-                            </Grid>
-                        </Grid>
-                        <Grid sx={{flexGrow: 1,  textAlign: 'right'}} container spacing={2}>
-                            <Grid item xs={5.5} sx={{display: 'flex', justifyContent: 'right', mt: 2}}>
-                                <IconButton sx={{fontSize: 48}}>
-                                    <ThumbUpOutlinedIcon sx={{fontSize: '100%', mt: 1}}></ThumbUpOutlinedIcon>
-                                </IconButton>
-                                <Typography sx={{fontSize: 20, mt: 3}}>2M</Typography>
-                            </Grid>
-                            <Grid item xs={5.5} sx={{display: 'flex', justifyContent: 'center', mt: 2}}>
-                                <IconButton sx={{fontSize: 48}}>
-                                    <ThumbDownOutlinedIcon sx={{fontSize: '100%', mt: 1}}></ThumbDownOutlinedIcon>
-                                </IconButton>
-                                <Typography sx={{fontSize: 20, mt: 3}}>1k</Typography>
-                            </Grid>
-                            <Grid item xs={1} sx={{display: 'flex', justifyContent: 'center', mt: 2}}>
-                                <IconButton sx={{fontSize: 48}}>
-                                    <DeleteIcon sx={{fontSize: '100%', mt: 1}}></DeleteIcon>
-                                </IconButton>
-                            </Grid>
-                            <Grid container spacing={2}>
-                                <Grid item xs={6.9} sx={{display: 'flex', justifyContent: 'right'}}>
-                                    <Typography sx={{fontSize: 16, textAlign: 'right', fontWeight: 512, mt: 1.5}}>
-                                        Views: 
-                                    </Typography>
-                                    <Typography sx={{fontSize: 16, textAlign: 'right', fontWeight: 512, ml: 1, mt: 1.5}}>
-                                        somenumber
-                                    </Typography>
-                                </Grid>
-                                <Grid item xs={5.1}>
-                                    <IconButton sx={{fontSize: 48}}>
-                                        <ExpandMoreIcon sx={{fontSize: '100%'}} ></ExpandMoreIcon>
-                                    </IconButton>
-                                </Grid>
-                            </Grid>
-                        </Grid> */}
                         <Box sx={{height: '100%', width: '100%'}}>
                             <Box sx={{display: 'flex', height: '16%', width: '100%'}}>
                                 <Box sx={{display: 'block', height: '100%', width: '70%'}}>
@@ -289,19 +186,8 @@ function ListCard(props) {
                                             <ThumbDownOutlinedIcon onClick={handleDislike} sx={{fontSize: '100%'}}></ThumbDownOutlinedIcon>
                                         </IconButton>
                                         <Typography sx={{fontSize: 20, mt: 2}}>{list.dislikes}</Typography>
-                                        <IconButton sx={{fontSize: 48, ml: 10}}>
-                                            <DeleteIcon sx={{fontSize: '100%'}}></DeleteIcon>
-                                        </IconButton>
-                                    </Box>
-                                    <Box sx={{display: 'flex'}}>
-                                        <Typography sx={{fontSize: 16, textAlign: 'right', fontWeight: 512, ml: 5, mt: 1}}>
-                                            Views: 
-                                        </Typography>
-                                        <Typography sx={{fontSize: 16, textAlign: 'right', fontWeight: 512, ml: 1, mt: 1}}>
-                                            somenumber
-                                        </Typography>
-                                        <IconButton sx={{fontSize: 36, ml: 22}}>
-                                            <ExpandMoreIcon sx={{fontSize: '100%'}} ></ExpandMoreIcon>
+                                        <IconButton sx={{fontSize: 48, ml: 12}}>
+                                            <DeleteIcon onClick={handleDeleteList} sx={{fontSize: '100%'}}></DeleteIcon>
                                         </IconButton>
                                     </Box>
                                 </Box>
@@ -324,15 +210,42 @@ function ListCard(props) {
                                         5. {list.items[4]}
                                     </Typography>
                                 </Box>
-                                <Box>
+                                <Box sx={{width: "50%", height: "100%", bgcolor: "transparent"}}>
+                                    <Box sx={{width: "100%", height: "85%"}}>
+                                        <List sx={{ width: '100%', left: '2%', top: '3%', bgcolor: 'transparent'}}>
+                                            {
+                                                list.comments ? list.comments.map((value, index) => (
+                                                    <Box>
+                                                        <Typography sx={{color: 'red', textDecoration: 'underline', fontWeight: 512, fontSize: 16}}>
+                                                            {list.commentsBy[index]}
+                                                        </Typography>
+                                                        <Typography sx={{fontSize: 24}}>
+                                                            {value}
+                                                        </Typography>
+                                                    </Box>
+                                            )) : ""
+                                            }
+                                        </List>
+                                    </Box>
+                                    <Box sx={{width: "100%", height: "15%"}}>
+                                        <TextField onKeyPress={handleComment} label="Add Comment" sx={{width: "95%", height: "100%", bgcolor: "white", fontSize: 32, border: "2px", borderRadius: "16px"}}>
+                                            
+                                        </TextField>
+                                    </Box>
+
                                 </Box>
                             </Box>
                             <Box sx={{display: 'flex', width: "100%", height: "14%"}}>
-                                <Box>
-                                    <Typography></Typography>
-                                </Box>
-                                <Box>
-                                </Box>
+                                {edit}
+                                    <Typography sx={{fontSize: 16, fontWeight: 512, ml: 5, height: "100%", width: "5%", mt: 4}}>
+                                        Views: 
+                                    </Typography>
+                                    <Typography sx={{fontSize: 16, fontWeight: 512, ml: 1, height: "100%", width: "6.5%", mt: 4}}>
+                                        {list.views}
+                                    </Typography>
+                                    <IconButton sx={{fontSize: 36, ml: 22, width: "5%", mt: 2}}>
+                                        <ExpandLessIcon onClick={handleExpand} sx={{fontSize: '100%'}} ></ExpandLessIcon>
+                                    </IconButton>
                             </Box>
                         </Box>
                 </ListItem>
