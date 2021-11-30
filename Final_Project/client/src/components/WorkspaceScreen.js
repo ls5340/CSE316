@@ -30,7 +30,12 @@ function WorkspaceScreen() {
     }
 
     let lists = "";
+    let namePublished = false;
     if (store.currentList) {
+        let list = store.currentList;
+        if (list.items.includes("") || store.containsDuplicates() || store.namePublished(value)) {
+            namePublished = true
+        }
         lists = 
             <Box id="top5-workspace" sx={{bgcolor: "pink", border: '2px solid', borderRadius: '16px', pt: 1, pb: "1%", pl: "2%", pr: "2%"}}>
         <TextField defaultValue={store.currentList.name} onChange={handleUpdateTitle} sx={{bgcolor: 'white', width: '40%'}} inputProps={{style: {fontSize: 20, fontWeight: 512, height: 10}}}>  </TextField>
@@ -58,7 +63,7 @@ function WorkspaceScreen() {
         </Box>
         <Box sx={{display: 'flex', width: '100%', height: '10%', mt: 1, justifyContent: 'right'}}>
             <Button onClick={handleSaveList} sx={{width: '10%', height: '100%', bgcolor: 'gray', color: 'black'}}>Save</Button>
-            <Button onClick={handlePublish} sx={{width: '10%', height: '100%', bgcolor: 'gray', color: 'black', ml: 2}}>Publish</Button>
+            <Button disabled={namePublished} onClick={handlePublish} sx={{width: '10%', height: '100%', bgcolor: 'gray', color: 'black', ml: 2}}>Publish</Button>
         </Box>
     </Box>
     }

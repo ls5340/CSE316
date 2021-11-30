@@ -245,7 +245,7 @@ function GlobalStoreContextProvider(props) {
         let newListName = "Untitled" + store.newListCounter;
         let payload = {
             name: newListName,
-            items: ["?", "?", "?", "?", "?"],
+            items: ["", "", "", "", ""],
             itemTuples: [],
             ownerEmail: auth.user.email,
             published: null,
@@ -447,6 +447,28 @@ function GlobalStoreContextProvider(props) {
         });
     }
 
+
+    store.namePublished = function(value) {
+        for (let key in store.currentAllLists) {
+            if (store.currentAllLists[key].published && store.currentAllLists[key].name === value) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    store.containsDuplicates = function() {
+        let dict = [];
+        let list = store.currentList.items;
+        for (let key in list) {
+            if (list[key] in dict) {
+                return true;
+            }
+            dict[list[key]] = true;
+        }
+        return false;
+    }
+
     store.publishCurrentList = async function() {
         let lists = store.currentAllLists;
         let found = false;
@@ -631,25 +653,40 @@ function GlobalStoreContextProvider(props) {
         }
     }
 
-    store.expandList = (id) => {
+    store.expandList = async function(value) {
         let list = [];
+        let view = false;
         if (store.listsExpanded) {
             list = store.listsExpanded;
-            let index = list.indexOf(id);
+            let index = list.indexOf(value._id);
             if (index < 0) {
-                list.push(id);
+                list.push(value._id);
+                view = true;
             }
             else {
                 list.splice(index, 1);
             }
         }
         else {
-            list.push(id);
+            view = true;
+            list.push(value._id);
         }
-        storeReducer({
-            type: GlobalStoreActionType.EXPAND_LIST,
-            payload: list,
-        });
+        if (view) {
+            value.views += 1;
+            let response = await api.updateTop5ListById(value._id, value);
+            if (response.data.success) {
+                storeReducer({
+                    type: GlobalStoreActionType.EXPAND_LIST,
+                    payload: list,
+                });
+            }
+        }
+        else {
+            storeReducer({
+                type: GlobalStoreActionType.EXPAND_LIST,
+                payload: list,
+            });
+        }
     }
 
     store.comment = async function (id, value) {

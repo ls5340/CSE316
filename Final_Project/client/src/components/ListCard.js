@@ -66,7 +66,7 @@ function ListCard(props) {
     }
 
     function handleExpand(event) {
-        store.expandList(list._id);
+        store.expandList(list);
     }
 
     function handleComment(event) {
@@ -79,15 +79,24 @@ function ListCard(props) {
             <Typography onClick={(event) => {handleLoadList(event, list._id)}} sx={{fontSize: 16, ml: 2, mt: 1, color: 'red', textDecoration: 'underline', fontWeight: 512, width: 32}}>
                 Edit
             </Typography>
-    
+
+    let edit2 = 
+        <Typography onClick={(event) => {handleLoadList(event, list._id)}} sx={{fontSize: 16, ml: 2, mt: 3, color: 'red', textDecoration: 'underline', fontWeight: 512, width: "80%"}}>
+            Edit
+        </Typography>
+
     if (list.published != null) {
         edit = 
         <Typography sx={{fontSize: 16, ml: 2, mt: 1, fontWeight: 512, width: 400}}>
             Published: {list.published}
         </Typography>
 
-    }
+        edit2 = 
+        <Typography sx={{fontSize: 16, ml: 2, mt: 4, fontWeight: 512, width: "80%"}}>
+            Published: {list.published}
+        </Typography>
 
+    }
     let cardElement =
         <ListItem
             id={list._id}
@@ -236,8 +245,8 @@ function ListCard(props) {
                                 </Box>
                             </Box>
                             <Box sx={{display: 'flex', width: "100%", height: "14%"}}>
-                                {edit}
-                                    <Typography sx={{fontSize: 16, fontWeight: 512, ml: 5, height: "100%", width: "5%", mt: 4}}>
+                                {edit2}
+                                    <Typography sx={{fontSize: 16, fontWeight: 512, ml: 5, height: "100%", width: "4%", mt: 4}}>
                                         Views: 
                                     </Typography>
                                     <Typography sx={{fontSize: 16, fontWeight: 512, ml: 1, height: "100%", width: "6.5%", mt: 4}}>

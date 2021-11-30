@@ -89,7 +89,6 @@ function AuthContextProvider(props) {
                     }
                 })
                 history.push("/");
-                store.loadIdNamePairs();
             }
             else if (response.status === 400) {
                 console.log("REGISTER BAD");
@@ -130,7 +129,6 @@ function AuthContextProvider(props) {
                 });
                 console.log("sucessssy??");
                 history.push("/");
-                store.loadIdNamePairs();
             }
             else if (response.status === 400) {
                 console.log("LOGIN BAD");
