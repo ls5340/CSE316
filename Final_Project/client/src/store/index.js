@@ -320,8 +320,8 @@ function GlobalStoreContextProvider(props) {
                 let lists = response.data.lists;
                 let found = null;
                 for (let key in lists) {
-                    if (key.communityList && key.name === listToDelete.name) {
-                        found = key;
+                    if (lists[key].communityList && lists[key].name === listToDelete.name) {
+                        found = lists[key];
                         break;
                     }
                 }
@@ -351,6 +351,10 @@ function GlobalStoreContextProvider(props) {
                         }
                     }
                     else {
+                        found.itemTuples.sort((a, b) => {
+                            return a[1] > b[1] ? -1 : (a[1] === b[1] ? (a[0] > b[0] ? 1 : -1) : 1)
+                        })
+                        console.log("deleting2?")
                         let response = await api.updateTop5ListById(found._id, found);
                         if (response.data.success) {
                             let response = await api.deleteTop5ListById(listToDelete._id);
