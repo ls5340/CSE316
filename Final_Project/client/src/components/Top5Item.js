@@ -16,7 +16,6 @@ import { Typography } from '@mui/material'
 function Top5Item(props) {
     const { store } = useContext(GlobalStoreContext);
     const [editActive, setEditActive] = useState(false);
-    const [draggedTo, setDraggedTo] = useState(0);
     const [value, setValue] = useState(props.text);
 
     function handleClick(event) {
@@ -52,11 +51,6 @@ function Top5Item(props) {
     }
 
     let { index } = props;
-
-    let itemClass = "top5-item";
-    if (draggedTo) {
-        itemClass = "top5-item-dragged-to";
-    }
 
     let text = <Box sx={{ p: 1, flexGrow: 1 }}>{props.text}</Box>;
     if (editActive) {

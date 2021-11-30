@@ -2,9 +2,16 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { Link } from 'react-router-dom'
+import { useContext } from 'react';
+import AuthContext from '../auth';
 
 
 export default function WelcomeScreen() {
+    const { auth } = useContext(AuthContext);
+
+    function handleGuest() {
+        auth.guest();
+    }
     return (
         <div id="welcome-screen">
             <Typography sx={{ fontSize: 64, color: 'yellow', height: 85 }}> Welcome to Top 5 Lister! </Typography>
@@ -23,8 +30,8 @@ export default function WelcomeScreen() {
                 </Link>
             </Box>
             <Box sx={{ height: 64 }}> 
-                <Link to='/register/' >
-                    <Button variant="contained" sx={{ width: 256, fontSize: 16, color: 'black', backgroundColor: '#abdba0' }}>Continue as Guest</Button>
+                <Link to='/' >
+                    <Button onClick={handleGuest} variant="contained" sx={{ width: 256, fontSize: 16, color: 'black', backgroundColor: '#abdba0' }}>Continue as Guest</Button>
                 </Link>
             </Box>
         </div>

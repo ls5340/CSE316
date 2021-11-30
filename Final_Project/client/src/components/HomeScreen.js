@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { GlobalStoreContext } from '../store'
 import ListCard from './ListCard.js'
 import { Fab, Typography } from '@mui/material'
@@ -16,6 +16,7 @@ import Top5Item from './Top5Item.js'
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import WorkspaceScreen from './WorkspaceScreen'
+import AuthContext from '../auth'
 
 /*
     This React component lists all the top5 lists in the UI.
@@ -24,6 +25,9 @@ import WorkspaceScreen from './WorkspaceScreen'
 */
 const HomeScreen = () => {
     const { store } = useContext(GlobalStoreContext);
+    const { auth } = useContext(AuthContext);
+
+    const [text, setText] = useState("");
 
     useEffect(() => {
         store.loadAllLists();
@@ -33,10 +37,35 @@ const HomeScreen = () => {
         store.createNewList();
     }
 
-    function handleSaveList() {
-        store.saveCurrentList();
+    function handleHome() {
+        store.home();
     }
+
+    function handleUser() {
+        store.user();
+    }
+
+    function handleUsers() {
+        store.users();
+    }
+
+    function handleCommunityLists() {
+        store.communityLists();
+    }
+
+    function handleUpdateText(event) {
+        setText(event.target.value);
+    }
+
+    function handleSearch(event) {
+        if (event.code === "Enter")
+            store.search(text);
+    }
+
     let listCard = "";
+    let homeDisabled = false;
+    if (auth.user === "Guest")
+        homeDisabled = true;
     if (store) {
         // if (store.currentList) {
         //     history.push()
@@ -46,7 +75,7 @@ const HomeScreen = () => {
                 <div id="list-selector-list">
                     <List sx={{ width: '95%', left: '2%', top: '3%', bgcolor: 'transparent'}}>
                     {
-                        store.currentAllLists.map((aList) => (
+                        store.currentFiltered.map((aList) => (
                             <ListCard
                                 key={aList._id}
                                 list={aList}
@@ -62,10 +91,10 @@ const HomeScreen = () => {
         <Box id="top5-list-selector" sx={{display: 'block'}}>
             <DeleteModal />
             <Box id="list-selector-heading">
-            <IconButton> 
+            <IconButton onClick={handleHome} disabled={homeDisabled}> 
                 <HomeOutlinedIcon sx={{fontSize: 64}}> </HomeOutlinedIcon>
             </IconButton>
-            <IconButton>
+            <IconButton onClick={handleUser}>
                 <PersonIcon sx={{fontSize: 64}}> </PersonIcon>
             </IconButton>
             <IconButton>
@@ -74,7 +103,7 @@ const HomeScreen = () => {
             <IconButton>
                 <FunctionsIcon sx={{fontSize: 64}}> </FunctionsIcon>
             </IconButton>
-            <TextField sx={{width: 666}}> </TextField>
+            <TextField defaultValue={text} onChange={handleUpdateText} onKeyPress={handleSearch} sx={{width: 666}}> </TextField>
             <Typography sx={{fontSize: 32}}> Sort By</Typography>
             <IconButton>
                 <SortIcon sx={{fontSize: 64}}> </SortIcon>

@@ -11,6 +11,7 @@ export const AuthActionType = {
     REGISTER_USER: "REGISTER_USER",
     LOGIN_USER: "LOGIN_USER",
     LOGOUT_USER: "LOGOUT_USER",
+    GUEST: "GUEST",
     ALERTING: "ALERTING",
 }
 
@@ -52,6 +53,12 @@ function AuthContextProvider(props) {
                     user: null,
                     loggedIn: false,
                 });
+            }
+            case AuthActionType.GUEST: {
+                return setAuth({
+                    user: "Guest",
+                    loggedIn: true,
+                })
             }
             case AuthActionType.ALERTING: {
                 return setAuth({
@@ -169,6 +176,16 @@ function AuthContextProvider(props) {
         else {
             console.log("logout fail");
         }
+    }
+
+    auth.guest = async function() {
+        authReducer({
+            type: AuthActionType.GUEST,
+            payload: {
+
+            }
+        });
+        history.push("/");
     }
 
     auth.alert = async function (num) {
