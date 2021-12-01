@@ -86,14 +86,18 @@ function ListCard(props) {
         </Typography>
 
     if (list.published != null) {
+        let type = "Published: ";
+        if (list.communityList) {
+            type = "Uploaded: ";
+        }
         edit = 
         <Typography sx={{fontSize: 16, ml: 2, mt: 1, fontWeight: 512, width: 400}}>
-            Published: {list.published}
+            {type} {list.published}
         </Typography>
 
         edit2 = 
         <Typography sx={{fontSize: 16, ml: 2, mt: 4, fontWeight: 512, width: "80%"}}>
-            Published: {list.published}
+            {type} {list.published}
         </Typography>
 
     }
@@ -156,6 +160,22 @@ function ListCard(props) {
 
     if (store.listsExpanded) {
         let index = store.listsExpanded.indexOf(list._id);
+        let author = 
+            <Box sx={{display: 'flex', width: '100%'}}>
+                <Typography sx={{fontSize: 16, ml: 2, fontWeight: 512}}>
+                        By: 
+                </Typography>
+                <Link to='/login/' style={{textDecoration: 'none'}}>
+                    <Typography sx={{fontSize: 16, ml: 1, color: 'blue', textDecoration: 'underline', fontWeight: 512}}>
+                        {list.name}
+                    </Typography>
+                </Link>
+            </Box>
+        if (list.communityList) {
+            author = 
+            <Box sx={{display: 'flex', width: '100%'}}>
+            </Box>
+        }
         if (index >= 0) {
             cardElement =
                 <ListItem
@@ -174,16 +194,7 @@ function ListCard(props) {
                                     <Typography sx={{fontSize: 32, ml: 2, fontWeight: 512}}>
                                                 {list.name}
                                     </Typography>
-                                    <Box sx={{display: 'flex', width: '100%'}}>
-                                        <Typography sx={{fontSize: 16, ml: 2, fontWeight: 512}}>
-                                                By: 
-                                        </Typography>
-                                        <Link to='/login/' style={{textDecoration: 'none'}}>
-                                            <Typography sx={{fontSize: 16, ml: 1, color: 'blue', textDecoration: 'underline', fontWeight: 512}}>
-                                                {list.name}
-                                            </Typography>
-                                        </Link>
-                                    </Box>
+                                    {author}
                                 </Box>
                                 <Box sx={{display: 'block', width: '30%'}}>
                                     <Box sx={{display: 'flex'}}>
@@ -204,19 +215,19 @@ function ListCard(props) {
                             <Box sx={{display: 'flex', width: "100%", height: "70%", ml: 2}}>
                                 <Box sx={{width: "50%", height: "100%", bgcolor: "blue", border: '2px', borderRadius: '16px', p: 1}}>
                                     <Typography sx={{fontSize: 48, width: "100%", color: "yellow"}}>
-                                        1. {list.items[0]}
+                                        1. {list.communityList ? list.itemTuples[0][0] : list.items[0]}
                                     </Typography>
                                     <Typography sx={{fontSize: 48, width: "100%", color: "yellow"}}>
-                                        2. {list.items[1]}
+                                        2. {list.communityList ? list.itemTuples[1][0] : list.items[1]}
                                     </Typography>
                                     <Typography sx={{fontSize: 48, width: "100%", color: "yellow"}}>
-                                        3. {list.items[2]}
+                                        3. {list.communityList ? list.itemTuples[2][0] : list.items[2]}
                                     </Typography>
                                     <Typography sx={{fontSize: 48, width: "100%", color: "yellow"}}>
-                                        4. {list.items[3]}
+                                        4. {list.communityList ? list.itemTuples[3][0] : list.items[3]}
                                     </Typography>
                                     <Typography sx={{fontSize: 48, width: "100%", color: "yellow"}}>
-                                        5. {list.items[4]}
+                                        5. {list.communityList ? list.itemTuples[4][0] : list.items[4]}
                                     </Typography>
                                 </Box>
                                 <Box sx={{width: "50%", height: "100%", bgcolor: "transparent"}}>

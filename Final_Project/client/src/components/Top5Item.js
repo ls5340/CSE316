@@ -36,7 +36,9 @@ function Top5Item(props) {
     }
 
     function handleUpdateText(event) {
+        console.log(store.currentFiltered);
         setValue(event.target.value);
+        console.log(store.currentFiltered);
     }
 
     function handleKeyPress(event) {

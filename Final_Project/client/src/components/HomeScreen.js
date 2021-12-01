@@ -12,11 +12,10 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import FunctionsIcon from '@mui/icons-material/Functions';
 import TextField from '@mui/material/TextField';
 import SortIcon from '@mui/icons-material/Sort';
-import Top5Item from './Top5Item.js'
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import WorkspaceScreen from './WorkspaceScreen'
 import AuthContext from '../auth'
+import MenuItem from '@mui/material/MenuItem';
+import Menu from '@mui/material/Menu';
 
 /*
     This React component lists all the top5 lists in the UI.
@@ -27,7 +26,37 @@ const HomeScreen = () => {
     const { store } = useContext(GlobalStoreContext);
     const { auth } = useContext(AuthContext);
 
-    const [text, setText] = useState("");
+    const [text, setText] = useState(store.searchField ? store.searchField : "");
+
+    const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
+
+    const handleSortMenuOpen = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClose0 = () => {
+        setAnchorEl(null);
+    };
+    const handleClose1 = () => {
+        store.sortBy(1);
+        setAnchorEl(null);
+    };
+    const handleClose2 = () => {
+        store.sortBy(2);
+        setAnchorEl(null);
+    };
+    const handleClose3 = () => {
+        store.sortBy(3);
+        setAnchorEl(null);
+    };
+    const handleClose4 = () => {
+        store.sortBy(4);
+        setAnchorEl(null);
+    };
+    const handleClose5 = () => {
+        store.sortBy(5);
+        setAnchorEl(null);
+    };
 
     useEffect(() => {
         store.loadAllLists();
@@ -46,7 +75,7 @@ const HomeScreen = () => {
     }
 
     function handleUsers() {
-        store.users();
+        store.all_lists();
     }
 
     function handleCommunityLists() {
@@ -64,8 +93,12 @@ const HomeScreen = () => {
 
     let listCard = "";
     let homeDisabled = false;
+    let statusBar = "Your Lists";
     if (auth.user === "Guest")
         homeDisabled = true;
+    if (store.currentView === "USER") {
+        statusBar = "User Lists"
+    }
     if (store) {
         // if (store.currentList) {
         //     history.push()
@@ -94,20 +127,31 @@ const HomeScreen = () => {
             <IconButton onClick={handleHome} disabled={homeDisabled}> 
                 <HomeOutlinedIcon sx={{fontSize: 64}}> </HomeOutlinedIcon>
             </IconButton>
+            <IconButton onClick={handleUsers}>
+                <GroupsIcon sx={{fontSize: 64}}> </GroupsIcon>
+            </IconButton>
             <IconButton onClick={handleUser}>
                 <PersonIcon sx={{fontSize: 64}}> </PersonIcon>
             </IconButton>
-            <IconButton>
-                <GroupsIcon sx={{fontSize: 64}}> </GroupsIcon>
-            </IconButton>
-            <IconButton>
+            <IconButton onClick={handleCommunityLists}>
                 <FunctionsIcon sx={{fontSize: 64}}> </FunctionsIcon>
             </IconButton>
             <TextField defaultValue={text} onChange={handleUpdateText} onKeyPress={handleSearch} sx={{width: 666}}> </TextField>
-            <Typography sx={{fontSize: 32}}> Sort By</Typography>
-            <IconButton>
+            <Typography sx={{fontSize: 32, ml: 40}}> Sort By</Typography>
+            <IconButton onClick={handleSortMenuOpen}>
                 <SortIcon sx={{fontSize: 64}}> </SortIcon>
             </IconButton>
+            <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose0}
+            >
+                <MenuItem onClick={handleClose1}>Publish Date (Newest)</MenuItem>
+                <MenuItem onClick={handleClose2}>Publish Date (Oldest)</MenuItem>
+                <MenuItem onClick={handleClose3}>Views</MenuItem>
+                <MenuItem onClick={handleClose4}>Likes</MenuItem>
+                <MenuItem onClick={handleClose5}>Dislikes</MenuItem>
+            </Menu>
                 
             </Box>
             
