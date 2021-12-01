@@ -115,7 +115,7 @@ function AuthContextProvider(props) {
                 case "Please enter the same password twice.":
                     this.alert(3);
                     break;
-                case "An account with this email address already exists.":
+                case "An account with this email address or username already exists.":
                     this.alert(4);
                     break;
                 default:

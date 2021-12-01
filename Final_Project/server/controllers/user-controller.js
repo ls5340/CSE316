@@ -10,7 +10,8 @@ getLoggedIn = async (req, res) => {
             user: {
                 firstName: loggedInUser.firstName,
                 lastName: loggedInUser.lastName,
-                email: loggedInUser.email
+                email: loggedInUser.email,
+                username: loggedInUser.username,
             }
         }).send();
     })
@@ -18,8 +19,8 @@ getLoggedIn = async (req, res) => {
 
 registerUser = async (req, res) => {
     try {
-        const { firstName, lastName, email, password, passwordVerify } = req.body;
-        if (!firstName || !lastName || !email || !password || !passwordVerify) {
+        const { firstName, lastName, email, username, password, passwordVerify } = req.body;
+        if (!firstName || !lastName || !email || !username || !password || !passwordVerify) {
             return res
                 .status(400)
                 .json({ errorMessage: "Please enter all required fields." });
@@ -39,7 +40,8 @@ registerUser = async (req, res) => {
                 })
         }
         const existingUser = await User.findOne({ email: email });
-        if (existingUser) {
+        const existingUser1 = await User.findOne({ username: username });
+        if (existingUser || existingUser1) {
             return res
                 .status(400)
                 .json({
@@ -53,7 +55,7 @@ registerUser = async (req, res) => {
         const passwordHash = await bcrypt.hash(password, salt);
 
         const newUser = new User({
-            firstName, lastName, email, passwordHash
+            firstName, lastName, email, username, passwordHash
         });
         const savedUser = await newUser.save();
         // LOGIN THE USER
@@ -67,7 +69,8 @@ registerUser = async (req, res) => {
             user: {
                 firstName: savedUser.firstName,
                 lastName: savedUser.lastName,
-                email: savedUser.email
+                email: savedUser.email,
+                username: username,
             }
         }).send();
     } catch (err) {
@@ -114,7 +117,8 @@ loginUser = async (req, res) => {
                 user: {
                     firstName: existingUser.firstName,
                     lastName: existingUser.lastName,
-                    email: existingUser.email
+                    email: existingUser.email,
+                    username: existingUser.username,
                 }
             }).send();
         }

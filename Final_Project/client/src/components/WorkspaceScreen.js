@@ -26,7 +26,7 @@ function WorkspaceScreen() {
     }
 
     function handlePublish(event) {
-        store.publishCurrentList();
+        store.publishCurrentList(value);
     }
 
     let lists = "";

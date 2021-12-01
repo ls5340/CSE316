@@ -31,6 +31,10 @@ const HomeScreen = () => {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
 
+    useEffect(() => {
+        (auth.user === "Guest") ? store.all_lists() : store.loadAllLists();
+    }, []);
+
     const handleSortMenuOpen = (event) => {
         setAnchorEl(event.currentTarget);
     };
@@ -57,10 +61,6 @@ const HomeScreen = () => {
         store.sortBy(5);
         setAnchorEl(null);
     };
-
-    useEffect(() => {
-        store.loadAllLists();
-    }, []);
 
     function handleCreateNewList() {
         store.createNewList();
@@ -94,10 +94,45 @@ const HomeScreen = () => {
     let listCard = "";
     let homeDisabled = false;
     let statusBar = "Your Lists";
-    if (auth.user === "Guest")
-        homeDisabled = true;
     if (store.currentView === "USER") {
-        statusBar = "User Lists"
+        if (store.searchField === "")
+            statusBar = "User Lists";
+        else 
+            statusBar = store.searchField + " Lists";
+    }
+    if (store.currentView === "ALL_LISTS") {
+        if (store.searchField === "")
+            statusBar = "All Lists";
+        else 
+            statusBar = store.searchField + " Lists";
+    }
+    if (store.currentView === "COMMUNITY_LISTS") {
+        if (store.searchField === "")
+            statusBar = "Community Lists";
+        else 
+            statusBar = store.searchField + " Lists";
+    }
+
+    let addStuff = 
+        <Box sx={{width: '100%', justifyContent: 'center', display: 'flex'}}>
+            <Fab 
+                color="primary" 
+                aria-label="add"
+                id="add-list-button"
+                onClick={handleCreateNewList}
+            >
+                <AddIcon />
+            </Fab>
+                <Typography variant="h2">{statusBar}</Typography>
+        </Box>
+
+    if (store.currentView != "HOME") {
+        if (auth.user === "Guest")
+            homeDisabled = true;
+        addStuff = 
+            <Box sx={{width: '100%', justifyContent: 'center', display: 'flex'}}>
+                <Typography variant="h2">{statusBar}</Typography>
+            </Box>
     }
     if (store) {
         // if (store.currentList) {
@@ -159,17 +194,7 @@ const HomeScreen = () => {
             {listCard}
             </Box>
             
-            <Box sx={{width: '100%', justifyContent: 'center', display: 'flex'}}>
-            <Fab 
-                color="primary" 
-                aria-label="add"
-                id="add-list-button"
-                onClick={handleCreateNewList}
-            >
-                <AddIcon />
-            </Fab>
-                <Typography variant="h2">Your Lists</Typography>
-            </Box>
+            {addStuff}
         </Box>)
 }
 

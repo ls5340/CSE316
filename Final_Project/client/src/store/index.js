@@ -364,7 +364,7 @@ function GlobalStoreContextProvider(props) {
             }
     }
 
-    store.user = async function() {
+    store.user = async function(value) {
         let response = "";
         if (auth.user === "Guest")
             response = await api.getTop5ListsGuest();
@@ -383,6 +383,23 @@ function GlobalStoreContextProvider(props) {
                 type: GlobalStoreActionType.USER,
                 payload: newArray
             });
+
+            if (value) {
+                let list = store.currentAllLists;
+                let filtered = [];
+                for (let key in list) {
+                    if (list[key].ownerUsername === value) {
+                        filtered.push(list[key]);
+                    }
+                }
+                storeReducer({
+                    type: GlobalStoreActionType.SEARCH,
+                    payload: {
+                        currentFiltered: filtered,
+                        searchField: value,
+                    }
+                })
+            }
         }
         else {
             console.log("API FAILED TO GET THE LIST PAIRS");
@@ -457,6 +474,7 @@ function GlobalStoreContextProvider(props) {
             name: newListName,
             items: ["", "", "", "", ""],
             itemTuples: [],
+            ownerUsername: auth.user.username,
             ownerEmail: auth.user.email,
             published: null,
             communityList: false,
@@ -468,6 +486,8 @@ function GlobalStoreContextProvider(props) {
             comments: [],
             commensBy: [],
         };
+        console.log(auth.user);
+        console.log(payload);
         const response = await api.createTop5List(payload);
         if (response.data.success) {
             let newList = response.data.top5List;
@@ -690,7 +710,8 @@ function GlobalStoreContextProvider(props) {
         return false;
     }
 
-    store.publishCurrentList = async function() {
+    store.publishCurrentList = async function(title) {
+        store.currentList.name = title;
         let lists = store.currentAllLists;
         let found = false;
         for (let key in lists) {
@@ -714,7 +735,6 @@ function GlobalStoreContextProvider(props) {
                     }
                 }
                 if (found1) {
-                    console.log("HERE");
                     for (let i = 0; i < 5; i++) {
                         let exists = found1.items.indexOf(store.currentList.items[i]);
                         if (exists < 0) {
@@ -766,6 +786,7 @@ function GlobalStoreContextProvider(props) {
                         name: store.currentList.name,
                         items: store.currentList.items,
                         itemTuples: tuples,
+                        ownerUsername: auth.user.username,
                         ownerEmail: auth.user.email,
                         published: new Date(),
                         communityList: true,
@@ -980,12 +1001,11 @@ function GlobalStoreContextProvider(props) {
     }
 
     store.search = (value) => {
-        console.log(store.currentView);
         if (store.currentView === "USER") {
             let list = store.currentAllLists;
             let filtered = [];
             for (let key in list) {
-                if (list[key].ownerEmail === value) {
+                if (list[key].ownerUsername === value) {
                     filtered.push(list[key]);
                 }
             }

@@ -12,6 +12,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { Typography } from '@mui/material'
 import { Link } from 'react-router-dom'
 import List from '@mui/material/List';
+import AuthContext from '../auth'
 
 /*
     This is a card in our list of top 5 lists. It lets select
@@ -24,6 +25,7 @@ function ListCard(props) {
     const { store } = useContext(GlobalStoreContext);
     const [editActive, setEditActive] = useState(false);
     const [text, setText] = useState("");
+    const { auth } = useContext(AuthContext);
     const { list } = props;
 
     function handleLoadList(event, id) {
@@ -75,6 +77,24 @@ function ListCard(props) {
         }
     }
 
+    function handleLoadUser(event) {
+        store.user(list.ownerUsername);
+    }
+
+    let author = 
+            <Box sx={{display: 'flex', width: '100%'}}>
+                <Typography sx={{fontSize: 16, ml: 2, fontWeight: 512}}>
+                        By: 
+                </Typography>
+                <Typography onClick={handleLoadUser} sx={{fontSize: 16, ml: 1, color: 'blue', textDecoration: 'underline', fontWeight: 512}}>
+                    {list.ownerUsername}
+                </Typography>
+            </Box>
+        
+    if (store.currentView === "COMMUNITY_LISTS")
+        author = <Box sx={{display: 'flex', width: '100%', height: 22}}>
+                </Box>
+
     let edit = 
             <Typography onClick={(event) => {handleLoadList(event, list._id)}} sx={{fontSize: 16, ml: 2, mt: 1, color: 'red', textDecoration: 'underline', fontWeight: 512, width: 32}}>
                 Edit
@@ -85,19 +105,75 @@ function ListCard(props) {
             Edit
         </Typography>
 
+    let deleteStuff = 
+        <IconButton onClick={handleDeleteList} sx={{fontSize: 48, ml: 12}}>
+            <DeleteIcon sx={{fontSize: '100%'}}></DeleteIcon>
+        </IconButton>   
+    
+    if (store.currentView != "HOME")
+        deleteStuff = "";
+
     if (list.published != null) {
         let type = "Published: ";
         if (list.communityList) {
             type = "Uploaded: ";
         }
+
+
+
+        let day = new Date(list.published).getDate();
+        let month = new Date(list.published).getMonth();
+        let year = new Date(list.published).getYear() + 1900;
+
+        switch (month) {
+            case 1:
+                month = 'January';
+                break;
+            case 2:
+                month = 'February';
+                break;
+            case 3:
+                month = 'March';
+                break;
+            case 4:
+                month = 'April';
+                break;
+            case 5:
+                month = 'May';
+                break;
+            case 6:
+                month = 'June';
+                break;
+            case 7:
+                month = 'July';
+                break;
+            case 8: 
+                month = 'August';
+                break;
+            case 9:
+                month = 'September';
+                break;
+            case 10:
+                month = 'October';
+                break;
+            case 11:
+                month = "November";
+                break;
+            case 12:
+                month = "December";
+                break;
+            default:
+                break;
+        }
+
         edit = 
         <Typography sx={{fontSize: 16, ml: 2, mt: 1, fontWeight: 512, width: 400}}>
-            {type} {list.published}
+            {type} {month} {day} {year}
         </Typography>
 
         edit2 = 
         <Typography sx={{fontSize: 16, ml: 2, mt: 4, fontWeight: 512, width: "80%"}}>
-            {type} {list.published}
+            {type} {month} {day} {year}
         </Typography>
 
     }
@@ -117,16 +193,7 @@ function ListCard(props) {
                         <Typography sx={{fontSize: 32, ml: 2, fontWeight: 512}}>
                                     {list.name}
                         </Typography>
-                        <Box sx={{display: 'flex', width: '100%'}}>
-                            <Typography sx={{fontSize: 16, ml: 2, fontWeight: 512}}>
-                                    By: 
-                            </Typography>
-                            <Link to='/login/' style={{textDecoration: 'none'}}>
-                                <Typography sx={{fontSize: 16, ml: 1, color: 'blue', textDecoration: 'underline', fontWeight: 512}}>
-                                    {list.ownerEmail}
-                                </Typography>
-                            </Link>
-                        </Box>
+                        {author}
                         {edit}
                     </Box>
                     <Box sx={{display: 'block', width: '30%'}}>
@@ -139,9 +206,7 @@ function ListCard(props) {
                                 <ThumbDownOutlinedIcon onClick={handleDislike} sx={{fontSize: '100%'}}></ThumbDownOutlinedIcon>
                             </IconButton>
                             <Typography sx={{fontSize: 20, mt: 2}}>{list.dislikes}</Typography>
-                            <IconButton sx={{fontSize: 48, ml: 12}}>
-                                <DeleteIcon onClick={handleDeleteList} sx={{fontSize: '100%'}}></DeleteIcon>
-                            </IconButton>
+                            {deleteStuff}
                         </Box>
                         <Box sx={{display: 'flex'}}>
                             <Typography sx={{fontSize: 16, textAlign: 'right', fontWeight: 512, ml: 5, mt: 1}}>
@@ -160,23 +225,61 @@ function ListCard(props) {
 
     if (store.listsExpanded) {
         let index = store.listsExpanded.indexOf(list._id);
-        let author = 
-            <Box sx={{display: 'flex', width: '100%'}}>
-                <Typography sx={{fontSize: 16, ml: 2, fontWeight: 512}}>
-                        By: 
-                </Typography>
-                <Link to='/login/' style={{textDecoration: 'none'}}>
-                    <Typography sx={{fontSize: 16, ml: 1, color: 'blue', textDecoration: 'underline', fontWeight: 512}}>
-                        {list.name}
-                    </Typography>
-                </Link>
-            </Box>
-        if (list.communityList) {
-            author = 
-            <Box sx={{display: 'flex', width: '100%'}}>
-            </Box>
-        }
         if (index >= 0) {
+            let expandedItems = 
+            <Box sx={{width: "50%", height: "100%", bgcolor: "#003399", border: '2px', borderRadius: '16px', p: 1}}>
+                <Typography sx={{fontSize: 48, width: "100%", color: "#ffcc00"}}>
+                    1. {list.communityList ? list.itemTuples[0][0] : list.items[0]}
+                </Typography>
+                <Typography sx={{fontSize: 48, width: "100%", color: "#ffcc00"}}>
+                    2. {list.communityList ? list.itemTuples[1][0] : list.items[1]}
+                </Typography>
+                <Typography sx={{fontSize: 48, width: "100%", color: "#ffcc00"}}>
+                    3. {list.communityList ? list.itemTuples[2][0] : list.items[2]}
+                </Typography>
+                <Typography sx={{fontSize: 48, width: "100%", color: "#ffcc00"}}>
+                    4. {list.communityList ? list.itemTuples[3][0] : list.items[3]}
+                </Typography>
+                <Typography sx={{fontSize: 48, width: "100%", color: "#ffcc00"}}>
+                    5. {list.communityList ? list.itemTuples[4][0] : list.items[4]}
+                </Typography>
+            </Box>
+
+            if (list.communityList) {
+                expandedItems = 
+                <Box sx={{width: "50%", height: "100%", bgcolor: "#003399", border: '2px', borderRadius: '16px', p: 1}}>
+                    <Typography sx={{fontSize: 32, width: "100%", color: "#ffcc00"}}>
+                        1. {list.communityList ? list.itemTuples[0][0] : list.items[0]}
+                    </Typography>
+                    <Typography sx={{fontSize: 12, width: "100%", color: "#ffcc00", ml: 5}}>
+                        Votes: {list.itemTuples[0][1]}
+                    </Typography>
+                    <Typography sx={{fontSize: 32, width: "100%", color: "#ffcc00"}}>
+                        2. {list.communityList ? list.itemTuples[1][0] : list.items[1]}
+                    </Typography>
+                    <Typography sx={{fontSize: 12, width: "100%", color: "#ffcc00", ml: 5}}>
+                        Votes: {list.itemTuples[1][1]}
+                    </Typography>
+                    <Typography sx={{fontSize: 32, width: "100%", color: "#ffcc00"}}>
+                        3. {list.communityList ? list.itemTuples[2][0] : list.items[2]}
+                    </Typography>
+                    <Typography sx={{fontSize: 12, width: "100%", color: "#ffcc00", ml: 5}}>
+                        Votes: {list.itemTuples[2][1]}
+                    </Typography>
+                    <Typography sx={{fontSize: 32, width: "100%", color: "#ffcc00"}}>
+                        4. {list.communityList ? list.itemTuples[3][0] : list.items[3]}
+                    </Typography>
+                    <Typography sx={{fontSize: 12, width: "100%", color: "#ffcc00", ml: 5}}>
+                        Votes: {list.itemTuples[3][1]}
+                    </Typography>
+                    <Typography sx={{fontSize: 32, width: "100%", color: "#ffcc00"}}>
+                        5. {list.communityList ? list.itemTuples[4][0] : list.items[4]}
+                    </Typography>
+                    <Typography sx={{fontSize: 12, width: "100%", color: "#ffcc00", ml: 5}}>
+                        Votes: {list.itemTuples[4][1]}
+                    </Typography>
+                </Box>
+            }
             cardElement =
                 <ListItem
                     id={list._id}
@@ -206,43 +309,27 @@ function ListCard(props) {
                                             <ThumbDownOutlinedIcon onClick={handleDislike} sx={{fontSize: '100%'}}></ThumbDownOutlinedIcon>
                                         </IconButton>
                                         <Typography sx={{fontSize: 20, mt: 2}}>{list.dislikes}</Typography>
-                                        <IconButton sx={{fontSize: 48, ml: 12}}>
-                                            <DeleteIcon onClick={handleDeleteList} sx={{fontSize: '100%'}}></DeleteIcon>
-                                        </IconButton>
+                                        {deleteStuff}
                                     </Box>
                                 </Box>
                             </Box>
                             <Box sx={{display: 'flex', width: "100%", height: "70%", ml: 2}}>
-                                <Box sx={{width: "50%", height: "100%", bgcolor: "blue", border: '2px', borderRadius: '16px', p: 1}}>
-                                    <Typography sx={{fontSize: 48, width: "100%", color: "yellow"}}>
-                                        1. {list.communityList ? list.itemTuples[0][0] : list.items[0]}
-                                    </Typography>
-                                    <Typography sx={{fontSize: 48, width: "100%", color: "yellow"}}>
-                                        2. {list.communityList ? list.itemTuples[1][0] : list.items[1]}
-                                    </Typography>
-                                    <Typography sx={{fontSize: 48, width: "100%", color: "yellow"}}>
-                                        3. {list.communityList ? list.itemTuples[2][0] : list.items[2]}
-                                    </Typography>
-                                    <Typography sx={{fontSize: 48, width: "100%", color: "yellow"}}>
-                                        4. {list.communityList ? list.itemTuples[3][0] : list.items[3]}
-                                    </Typography>
-                                    <Typography sx={{fontSize: 48, width: "100%", color: "yellow"}}>
-                                        5. {list.communityList ? list.itemTuples[4][0] : list.items[4]}
-                                    </Typography>
-                                </Box>
+                                {expandedItems}
                                 <Box sx={{width: "50%", height: "100%", bgcolor: "transparent"}}>
                                     <Box sx={{width: "100%", height: "85%"}}>
-                                        <List sx={{ width: '100%', left: '2%', top: '3%', bgcolor: 'transparent'}}>
+                                        <List sx={{ width: '95%', left: '2%', top: '3%', bgcolor: 'transparent', height: "90%", overflow: "scroll"}}>
                                             {
                                                 list.comments ? list.comments.map((value, index) => (
+                                                    <ListItem>
                                                     <Box>
-                                                        <Typography sx={{color: 'red', textDecoration: 'underline', fontWeight: 512, fontSize: 16}}>
+                                                        <Typography sx={{color: 'blue', textDecoration: 'underline', fontWeight: 512, fontSize: 16}}>
                                                             {list.commentsBy[index]}
                                                         </Typography>
                                                         <Typography sx={{fontSize: 24}}>
                                                             {value}
                                                         </Typography>
                                                     </Box>
+                                                    </ListItem>
                                             )) : ""
                                             }
                                         </List>
