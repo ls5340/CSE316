@@ -49,6 +49,7 @@ export default function AppBanner() {
         >
             <MenuItem onClick={handleMenuClose}><Link to='/login/'>Login</Link></MenuItem>
             <MenuItem onClick={handleMenuClose}><Link to='/register/'>Create New Account</Link></MenuItem>
+            <MenuItem onClick={handleMenuClose}><Typography sx={{textDecoration: "underline", color: 'purple'}} onClick={auth.guest}>Continue as Guest</Typography></MenuItem>
         </Menu>
     );
     const loggedInMenu = 

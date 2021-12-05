@@ -168,12 +168,12 @@ function ListCard(props) {
 
         edit = 
         <Typography sx={{fontSize: 16, ml: 2, mt: 1, fontWeight: 512, width: 400}}>
-            {type} {month} {day} {year}
+            {type} {month} {day}, {year}
         </Typography>
 
         edit2 = 
         <Typography sx={{fontSize: 16, ml: 2, mt: 4, fontWeight: 512, width: "80%"}}>
-            {type} {month} {day} {year}
+            {type} {month} {day}, {year}
         </Typography>
 
     }
