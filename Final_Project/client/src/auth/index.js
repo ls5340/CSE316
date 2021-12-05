@@ -149,7 +149,7 @@ function AuthContextProvider(props) {
                 case "Please enter all required fields.":
                     this.alert(5);
                     break;
-                case "An account with this email address does not exist!":
+                case "An account with this username does not exist!":
                     this.alert(6);
                     break;
                 case "Wrong password":

@@ -79,7 +79,7 @@ function Top5Item(props) {
                 key={props.key}
                 draggable="true"
                 sx={{ display: 'flex', textAlign: 'left', border: '2px', 
-                borderRadius: '16px', bgcolor: 'yellow', width: '100%',
+                borderRadius: '16px', bgcolor: '#ffcc00', width: '100%',
                 height: '18%', fontSize: 36, mt: 1
             }}
             >

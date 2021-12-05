@@ -37,9 +37,9 @@ function WorkspaceScreen() {
             namePublished = true
         }
         lists = 
-            <Box id="top5-workspace" sx={{bgcolor: "pink", border: '2px solid', borderRadius: '16px', pt: 1, pb: "1%", pl: "2%", pr: "2%"}}>
+            <Box id="top5-workspace" sx={{bgcolor: "transparent", border: '2px solid', borderRadius: '16px', pt: 1, pb: "1%", pl: "2%", pr: "2%"}}>
         <TextField defaultValue={store.currentList.name} onChange={handleUpdateTitle} sx={{bgcolor: 'white', width: '40%'}} inputProps={{style: {fontSize: 20, fontWeight: 512, height: 10}}}>  </TextField>
-        <Box  sx={{bgcolor: "blue", display: "flex", borderRadius: '16px', width: "100%", height: "80%", mt: 1}}>
+        <Box  sx={{bgcolor: "#003399", display: "flex", borderRadius: '16px', width: "100%", height: "80%", mt: 1}}>
             <Box id="edit-numbering" sx={{ml: 2}}>
                 <Typography className="item-number" variant="h3" sx={{fontWeight: 512, border: '2px', borderRadius: '16px', mt: 1}}>1.</Typography>
                 <Typography className="item-number" variant="h3" sx={{fontWeight: 512, border: '2px', borderRadius: '16px', mt: 1}}>2.</Typography>

@@ -32,7 +32,7 @@ const HomeScreen = () => {
     const open = Boolean(anchorEl);
 
     useEffect(() => {
-        (auth.user === "Guest") ? store.all_lists() : store.loadAllLists();
+        (auth.user === "Guest") ? store.all_lists() : store.home();
     }, []);
 
     const handleSortMenuOpen = (event) => {

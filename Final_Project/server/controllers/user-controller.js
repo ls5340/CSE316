@@ -81,19 +81,19 @@ registerUser = async (req, res) => {
 
 loginUser = async (req, res) => {
     try {
-        const { email, password } = req.body;
-        if (!email || !password) {
+        const { username, password } = req.body;
+        if (!username || !password) {
             return res
                 .status(400)
                 .json({ errorMessage: "Please enter all required fields." });
         }
-        const existingUser = await User.findOne({ email: email });
+        const existingUser = await User.findOne({ username: username });
         if (!existingUser) {
             return res
                 .status(400)
                 .json({
                     success: false,
-                    errorMessage: "An account with this email address does not exist!"
+                    errorMessage: "An account with this username does not exist!"
                 });
         }
 
@@ -131,59 +131,6 @@ loginUser = async (req, res) => {
                     errorMessage: "Wrong password"
             });
         }
-        // let error = -1;
-        // bcrypt.compare(password, existingUser.passwordHash).then(async function(err, res1) {
-        //     if (err) {
-        //         console.log(err);
-        //         error = 0;
-        //         console.log("WHAT1");
-        //     }
-        //     if (res1) {
-        //         error = 1;      // password correct
-        //         console.log("WHAT2");
-        //     }
-        //     else {
-        //         error = 2;      // password wrong
-        //         console.log("WHAT3");
-        //     }
-
-        //     console.log(error);
-        //     if (error === 0) {
-        //         console.log("compare error");
-        //         return res
-        //             .status(400)
-        //             .json({
-        //                 success: false,
-        //                 errorMessage: "bcrypt compare error"
-        //             });
-        //     }
-        //     else if (error === 2) {
-        //         console.log("wrong password");
-        //         return res
-        //             .status(400)
-        //             .json({
-        //                 success: false,
-        //                 errorMessage: "wrong password"
-        //             });
-        //     }
-
-        //     console.log("correct password");
-
-        //     const token = auth.signToken(existingUser);
-
-        //     await res.cookie("token", token, {
-        //         httpOnly: true,
-        //         secure: true,
-        //         sameSite: "none"
-        //     }).status(200).json({
-        //         success: true,
-        //         user: {
-        //             firstName: existingUser.firstName,
-        //             lastName: existingUser.lastName,
-        //             email: existingUser.email
-        //         }
-        //     }).send();
-        // });
     } catch (err) {
         console.error(err);
         res.status(500).send();
